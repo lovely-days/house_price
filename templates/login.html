@@ -1,46 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Flask_WTF</title>
-    <style type="text/css">
-        .divl {
-        height:180px;
-        width:380px;
-        border:1px solid #8A8989
-        margin:0 auto
-        }
-        .input {
-        display:block;
-        width:350px;
-        height:40px;
-        margin:10px auto;
-        }
-        .button{
-        background:#2066C5;
-        color:white;
-        font-size:18px;
-        font-weight:bold;
-        height:50px;
-        border-radius:4px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="../static/css/Login.css">
 </head>
 
 <body>
-    <div class="divl">
-        <form action="login" method ="post">
-            {{form.hidden_tag()}}
-            {{form.name(size=16,id='name',class='input')}}
-            {%for e in form.name.errors%}
-            <span style="color:red">{{e}}</span>
-            {%endfor%}
-            {{form.password(size=16,id='password',class='input')}}
-            {%for e in form.password.errors%}
-            <span style="color:red">{{e}}</span>
-            {%endfor%}
-            <input type="submit" value="登录" class="input button">
-        </form>
+
+    <div class="container right-panel-active">
+            <!-- 注册 -->
+            <div class="container__form container--signup">
+                <form action="enroll" class="form" id="form_enroll" method="POST">
+                    <h2 class="form__title">注册账号</h2>
+                    <input type="text" placeholder="请输入名称" class="input" name="name" />
+                    <input type="password" placeholder="请输入密码" class="input" name="password" />
+                    <input type="password" placeholder="确认密码" class="input" />
+                    <input type="submit" button class="btn" name="enroll" value="点击注册">
+                </form>
+            </div>
+
+            <!-- 登录 -->
+            <div class="container__form container--signin">
+                <form action="login" class="form" id="form_login" method="POST">
+                    <h2 class="form__title">欢迎登录</h2>
+                    <input type="text" placeholder="请输入用户名" class="input" name="name" />
+                    <input type="password" placeholder="请输入密码" class="input" name="password" />
+                    <a href="#" class="link">忘记密码?</a>
+                    <input type="submit" button class="btn" name="login" value="登录">
+                </form>
+            </div>
+
+            <!-- 叠加部分 -->
+            <div class="container__overlay">
+                <div class="overlay">
+                    <div class="overlay__panel overlay--left">
+                        <button class="btn" id="signIn">已有账号，直接登录</button>
+                    </div>
+                    <div class="overlay__panel overlay--right">
+                        <button class="btn" id="signUp">没有账号，点击注册</button>
+                    </div>
+                </div>
+            </div>        
     </div>
 </body>
+<script src="../static/js/Login.js"></script>
 </html>

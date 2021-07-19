@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 
-from flask_wtf import Form
+from flask_wtf import Form, FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Length
 
@@ -23,3 +23,4 @@ class BaseEnroll(Form):
     password = PasswordField('password',
                              validators=[DataRequired(message="密码不能为空"), Length(6, 16, message='长度位于6~16位之间')],
                              render_kw={'placeholder': '输入密码'})
+

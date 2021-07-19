@@ -88,7 +88,7 @@ for result in results:
 # 保存图片
 # plt.savefig("./1.png", dpi=300)
 
-price_heatmap=folium.Map(location=[117.200931, 34.219325], zoom_start=11)
+price_heatmap = folium.Map(location=[117.200931, 34.219325], zoom_start=11)
 price_heatmap.add_child(plugins.HeatMap([[row["lat"], row["lon"]] for name, row in data.iterrows()]))
 price_heatmap.save("./heat_locate.html")
 
