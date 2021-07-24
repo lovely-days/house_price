@@ -1,146 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G I S</title>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>房价分析系统</title>
 
-    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-    
-    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
-    
-    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
-    
-    <link href="https://cdn.bootcdn.net/ajax/libs/openlayers/4.6.5/ol.css" rel="stylesheet">
-    
-    <script src="https://cdn.bootcdn.net/ajax/libs/openlayers/4.6.5/ol.js"></script>
+    <script src="../static/js/jquery_3.6.0.js"></script>
+
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/js/bootstrap.min.js"></script>
 
 </head>
+
 <body>
-    
-    <div class ="container">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid" style="margin-left: 1em;margin-right: 1em;">
+            <a class="navbar-brand" href="#">OurHousePrice</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarColor02">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Home
+                <span class="visually-hidden">(current)</span>
+            </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Pricing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#">Action</a>
+                            <a class="dropdown-item" href="#">Another action</a>
+                            <a class="dropdown-item" href="#">Something else here</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">Separated link</a>
+                        </div>
+                    </li>
+                </ul>
+                <form class="d-flex">
+                    <input class="form-control me-sm-2" type="text" placeholder="Search">
+                    <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="bs-docs-section" style="margin-top: 1em;margin-left: 1em;margin-right: 1em;margin-bottom: 0.5em; border-right: 1px;">
         <div class="row">
-            <h1 class="col-md-12 col-md-offset-3">欢 迎 使 用 徐 州 市 房 价 分 析 系 统</h1>
-            <a href = "login3.html"><button type="button" class="btn btn-info col-md-offset-10">注销登录</button></a>
-        </div>
-    </div>
-    <hr>
+            <div class="container col-md-2">
+                <ul class="nav nav-pills flex-column" id="tool_box">
+                    <li class="nav-item" >
+                        <a class="nav-link" href="#" id="data_show_control_label" onclick="OpenDataShowCard()">数据展示</a>
+                        <div id="data_show_control_card" class='card bg-light mb-3' style="margin-top:0.5em; display: none;" onmouseover="DataShow()">
+                            <div class="form-check" style="margin-left:1em;margin-top: 1em;margin-bottom: 1em;">
+                                <div>
+                                    <input class="form-check-input" type="checkbox" value="" id="House_check">
+                                    <label class="form-check-label" for="House_check">房屋</label>
+                                </div>
+                                <div>
+                                    <input class="form-check-input" type="checkbox" value="" id="Hospital_check">
+                                    <label class="form-check-label" for="Hospital_check">医院</label>
+                                </div>
+                                <div>
+                                    <input class="form-check-input" type="checkbox" value="" id="enviroment_check">
+                                    <label class="form-check-label" for="enviroment_check">公园</label>
+                                </div>
+                                <div>
+                                    <input class="form-check-input" type="checkbox" value="" id="subway_check">
+                                    <label class="form-check-label" for="subway_check">地铁</label>
+                                </div>
+                                <div>
+                                    <input class="form-check-input" type="checkbox" value="" id="bus_check">
+                                    <label class="form-check-label" for="bus_check">公交车站</label>
+                                </div>
+                                <div>
+                                    <input class="form-check-input" type="checkbox" value="" id="shopping_check">
+                                    <label class="form-check-label" for="shopping_check">购物中心</label>
+                                </div>
+                                <div>
+                                    <input class="form-check-input" type="checkbox" value="" id="restaurant_check">
+                                    <label class="form-check-label" for="restaurant_check">餐厅</label>
+                                </div>
+
+                                <br>
+
+                                <div>
+                                    <input class="form-check-input" type="checkbox" id="All_check" onclick="checkOrCancelAll();">
+                                    <label class="form-check-label text-primary" for="All_check">全选</label>
+                                </div>
 
 
-    <div class="container-fluid">
-        <ul class="nav nav-stacked col-md-2">
-            <li class="active"><a href="#home" data-toggle="modal" data-target="#myModal1">Home</a></li>
-            <!-- 这里的active属性就是使得所在的li的背景色变为蓝色-->
-            <li><a href="#profile" data-toggle="modal" data-target="#myModal2">SVN</a></li>
-            <li><a href="#message" data-toggle="modal" data-target="#myModal3">iOS</a></li>
-            <li><a href="#settings" data-toggle="modal" data-target="#myModal4">VB.Net</a></li>
-            <li><a href="#">Java</a></li>
-            <li><a href="#">PHP</a></li>
-        </ul>
-        
+                            </div>
 
-        <div class="col-md-9">
-            <div id="map">
-                <iframe id="inlineFrameExample"
-                        title="Inline Frame Example"
-                        width="100%"
-                        height="600px"
-                        scrolling="No"
-                        control_scale="True"
-                        src={{init_map}}>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="data_select_control_label"  onclick="OpenDataSelectCard()">房价查询</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="data_analysis_control_label" onclick="OpenDataAnalysisCard()">房价分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="data_predict_control_label" onclick="OpenDataPredictCard()">房价评估预测</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="container col-md-10">
+                <!--地图容器-->
+                <div class="">
+                    <div id="map">
+                        <iframe id="inlineFrameExample" title="Inline Frame Example" width="100%" height="670px" scrolling="No" control_scale="True" src={{init_map}}>
                 </iframe>
+                    </div>
+                </div>
             </div>
         </div>
-
-
-        <div class="modal right fade col-md-2" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>                
-                  <h4 class="modal-title" id="myModalLabel">弹窗标题1</h4>
-                </div>
-                <div class="modal-body">
-                      弹窗内容1	
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal right fade col-md-2" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>                
-                  <h4 class="modal-title" id="myModalLabel">弹窗标题2</h4>
-                </div>
-                <div class="modal-body">
-                      弹窗内容2	
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal right fade col-md-2" id="myModal3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>                
-                  <h4 class="modal-title" id="myModalLabel">弹窗标题3</h4>
-                </div>
-                <div class="modal-body">
-                      弹窗内容3	
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="modal right fade col-md-2" id="myModal4" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>                
-                  <h4 class="modal-title" id="myModalLabel">弹窗标题4</h4>
-                </div>
-                <div class="modal-body">
-                      弹窗内容4	
-                </div>
-              </div>
-            </div>
-          </div>
     </div>
-
-    <br>
-    <br>
 
 </body>
-
-<!--css样式-->
-<style type="text/css">
-    .modal.left .modal-dialog,.modal.right .modal-dialog{position:fixed;margin:auto;width:320px;height:100%;-webkit-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}
-    .modal.left .modal-content,.modal.right .modal-content{height:100%;overflow-y:auto}
-    .modal.left .modal-body,.modal.right .modal-body{padding:15px 15px 80px}
-    .modal.left.fade .modal-dialog{left:-320px;-webkit-transition:opacity .3s linear,left .3s ease-out;-moz-transition:opacity .3s linear,left .3s ease-out;-o-transition:opacity .3s linear,left .3s ease-out;transition:opacity .3s linear,left .3s ease-out}
-    .modal.left.fade.in .modal-dialog{left:0}
-    .modal.right.fade .modal-dialog{right:-320px;-webkit-transition:opacity .3s linear,right .3s ease-out;-moz-transition:opacity .3s linear,right .3s ease-out;-o-transition:opacity .3s linear,right .3s ease-out;transition:opacity .3s linear,right .3s ease-out}
-    .modal.right.fade.in .modal-dialog{right:0}
-    .modal-content{border-radius:0;border:none}
-    .modal-header{border-bottom-color:#eee;background-color:#fafafa}
-
-    .modal-backdrop {
-    opacity: 0 !important;
-    filter: alpha(opacity=0) !important;
-    }
-
-    </style>
-<script>
-    //显示
-$('#myModal').modal('show')
- 
- //隐藏
- $('#myModal').modal('hide')
-</script>
-
+    <script src="../static/js/index.js"></script>
 </html>
