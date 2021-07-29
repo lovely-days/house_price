@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>房价分析系统</title>
 
-    <script src="../static/js/jquery_3.6.0.js"></script>
+<script src="../static/js/jquery/jquery_3.6.0.js"></script>
 
-    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
-    <script src="../static/js/jquery.min.js"></script>
-    <script src="../static/js/bootstrap.min.js"></script>
+<link href="../static/css/bootstrap/bootstrap.min.css" rel="stylesheet">
+<script src="../static/js/bootstrap/jquery.min.js"></script>
+<script src="../static/js/bootstrap/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="../static/ol/ol.css" />
+<script src="../static/ol/ol.js"></script>
 
 </head>
 
@@ -62,41 +65,41 @@
                 <ul class="nav nav-pills flex-column" id="tool_box">
                     <li class="nav-item" >
                         <a class="nav-link" href="#" id="data_show_control_label" onclick="OpenDataShowCard()">数据展示</a>
-                        <div id="data_show_control_card" class='card bg-light mb-3' style="margin-top:0.5em; display: none;" onmouseover="DataShow()">
+                        <div id="data_show_control_card" class='card bg-light mb-3' style="margin-top:0.5em; display: none;" ondblclick="DataShow()">
                             <div class="form-check" style="margin-left:1em;margin-top: 1em;margin-bottom: 1em;">
                                 <div>
-                                    <input class="form-check-input" type="checkbox" value="" id="House_check">
+                                    <input class="form-check-input" type="checkbox" id="house_check">
                                     <label class="form-check-label" for="House_check">房屋</label>
                                 </div>
                                 <div>
-                                    <input class="form-check-input" type="checkbox" value="" id="Hospital_check">
+                                    <input class="form-check-input" type="checkbox" id="hospital_check">
                                     <label class="form-check-label" for="Hospital_check">医院</label>
                                 </div>
                                 <div>
-                                    <input class="form-check-input" type="checkbox" value="" id="enviroment_check">
-                                    <label class="form-check-label" for="enviroment_check">公园</label>
+                                    <input class="form-check-input" type="checkbox" id="school_check">
+                                    <label class="form-check-label" for="school_check">学校</label>
                                 </div>
                                 <div>
-                                    <input class="form-check-input" type="checkbox" value="" id="subway_check">
+                                    <input class="form-check-input" type="checkbox" id="environment_check">
+                                    <label class="form-check-label" for="environment_check">公园</label>
+                                </div>
+                                <div>
+                                    <input class="form-check-input" type="checkbox" id="subway_check">
                                     <label class="form-check-label" for="subway_check">地铁</label>
                                 </div>
                                 <div>
-                                    <input class="form-check-input" type="checkbox" value="" id="bus_check">
-                                    <label class="form-check-label" for="bus_check">公交车站</label>
+                                    <input class="form-check-input" type="checkbox" id="bus_station_check">
+                                    <label class="form-check-label" for="bus_station_check">公交车站</label>
                                 </div>
                                 <div>
-                                    <input class="form-check-input" type="checkbox" value="" id="shopping_check">
+                                    <input class="form-check-input" type="checkbox" id="shopping_check">
                                     <label class="form-check-label" for="shopping_check">购物中心</label>
-                                </div>
-                                <div>
-                                    <input class="form-check-input" type="checkbox" value="" id="restaurant_check">
-                                    <label class="form-check-label" for="restaurant_check">餐厅</label>
                                 </div>
 
                                 <br>
 
                                 <div>
-                                    <input class="form-check-input" type="checkbox" id="All_check" onclick="checkOrCancelAll();">
+                                    <input class="form-check-input" type="checkbox" id="all_check" onclick="CheckOrCancelAll()">
                                     <label class="form-check-label text-primary" for="All_check">全选</label>
                                 </div>
 
@@ -109,24 +112,54 @@
                         <a class="nav-link" href="#" id="data_select_control_label"  onclick="OpenDataSelectCard()">房价查询</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" id="data_analysis_control_label" onclick="OpenDataAnalysisCard()">房价分析</a>
+                        <a class="nav-link" href="#" id="condition_select_control_label"  onclick="OpenConditionSelectCard()">条件检索</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" id="data_predict_control_label" onclick="OpenDataPredictCard()">房价评估预测</a>
+                        <a class="nav-link" href="#" id="data_analysis_control_label" onclick="OpenDataAnalysisCard()">房价分析</a>
+                        <div id="data_analysis_control_card" class='card bg-light mb-3' style="margin-top:0.5em;display:none ">
+                            <div class="form-check" style="margin-left:1em;margin-top: 1em;margin-bottom: 1em;">
+                                <div>
+                                    <input type="radio" class="form-check-input" name="optionsRadios" id="heat_map" onclick="heat_map()">
+                                    <label class="form-check-label" for="heat_map">热力图分析</label>
+                                </div>
+                                <div>
+                                    <input type="radio" class="form-check-input" name="optionsRadios" id="other_map">
+                                    <label class="form-check-label" for="heat_map">其他分析</label>
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="data_predict_control_label" onclick="DataPredict()">房价评估预测</a>
                     </li>
                 </ul>
             </div>
 
             <div class="container col-md-10">
                 <!--地图容器-->
-                <div class="">
-                    <div id="map">
-                        <iframe id="inlineFrameExample" title="Inline Frame Example" width="100%" height="670px" scrolling="No" control_scale="True" src={{init_map}}>
-                </iframe>
-                    </div>
+                <div id="map" style="width: 100%; height: 670px;">
                 </div>
             </div>
         </div>
+
+        <div id="data_select_show" style="position: absolute; left: 300px; top: 100px; height:100px;width:200px;background-color: black; display: none;">
+
+        </div>
+
+        <div id="condition_select_show" style="position: absolute; left: 500px; top: 500px;">
+            <div id="condition_select_card" class='card bg-light mb-3' style="margin-top:0.5em; display: none;">
+            <div class="form-check" style="margin-left:1em;margin-top: 1em;margin-bottom: 1em;">
+
+
+
+            </div>
+
+        </div>
+        </div>
+
     </div>
 
 </body>

@@ -17,7 +17,6 @@ function enroll_validate() {
     var name = document.getElementById("enroll_name").value;
     var password = document.getElementById("enroll_password").value;
     var password_sure = document.getElementById("enroll_password_sure").value;
-    var url = location.href;
 
     if (name.length == 0) {
         alert("输入姓名不能为空！！");
@@ -29,7 +28,6 @@ function enroll_validate() {
         password_sure.value = "";
     } else {
         $.ajax({
-            url: url,
             type: 'POST',
             data: JSON.stringify({
                 type: 'enroll',
@@ -60,7 +58,6 @@ function enroll_validate() {
 function login_validate() {
     var name = document.getElementById("login_name").value;
     var password = document.getElementById("login_password").value;
-    var url = location.href;
 
     if (name.length == 0) {
         alert("输入姓名不能为空！！");

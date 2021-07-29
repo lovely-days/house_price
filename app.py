@@ -2,9 +2,16 @@
 from flask import Flask, url_for, redirect, request, jsonify
 from flask import render_template
 
-import src.static.py.sql as db_helper
-import src.static.py.validate as validate_helper
-from src.static.py import config
+import re
+from collections import defaultdict
+import tensorflow as tf
+from geopy.distance import geodesic
+import numpy as np
+
+import src.static.py.helper.sql as db_helper
+import src.static.py.helper.validate as validate_helper
+import src.static.py.helper.co_system as coordinate_helper
+from src.static.py.helper import config
 
 app = Flask(__name__, static_folder="./static", template_folder="./templates")
 app.config.from_object(config)
@@ -89,67 +96,115 @@ def login():
         return render_template('login.html')
 
 
-@app.route('/map/init_map')
-def init_map():
-    return render_template("map/init_map.html")
-
-
-@app.route('/map/heat_map/heat_location')
-def heat_location():
-    return render_template("map/heat_map/heat_location.html")
-
-
-@app.route('/map/heat_map/heat_price')
-def heat_price():
-    return render_template("map/heat_map/heat_price.html")
-
-
-@app.route('/index')
+@app.route('/index', methods=('POST', 'GET'))
 def index():
     if request.method == "POST":
         request_json = request.get_json(force=True)
-        work_type = request_json['type']
+        work_type = request_json.pop("type")
 
         print(work_type)
 
-        # 房价点绘制显示
-        if work_type == 'house':
-            return 0
+        # 操作类型判断
+        if work_type == "heat_map":
+            sql = "select HouseID,Longitude,Latitude from houses"
+            results = db_helper.select_all(sql)
+            coordinates = []
 
-        # 医院点绘制显示
-        elif work_type == 'hospital':
-            return 0
+            for result in results:
+                coordinate = coordinate_helper.bd09_to_wgs84(float(result[1]), float(result[2]))
+                coordinates.append({"type": "Feature", "properties": {},
+                                    "geometry": {"type": "Point", "coordinates": coordinate}})
 
-        # 学校点绘制显示
-        elif work_type == 'school':
-            return 0
+            json_return = {"type": "FeatureCollection", "features": coordinates}
 
-        # 地铁点绘制显示
-        elif work_type == 'subway':
-            return 0
+            return jsonify(json_return)
 
-        # 公交车站点绘制
-        elif work_type == 'bus':
-            return 0
+        if work_type == "house_predict":
+            # 经度，纬度
+            data_coordinate = request_json.pop("coordinates")
 
-        # 购物中心点绘制
-        elif work_type == 'shopping':
-            return 0
+            infrastructure = defaultdict(list)
+            mean = std = 0
+            file = open("./static/py/predict/data/infra_factor.txt", 'r', encoding='utf-8')
 
-        # 餐厅点绘制显示
-        elif work_type == 'restaurant':
-            return 0
+            line = file.readline()
+            while line:
+                print(line)
+                ret_data = re.findall(r"([^,\n]+)", line)
+                if ret_data[0] == "mean&std":
+                    mean = ret_data[1]
+                    std = ret_data[2]
+                else:
+                    price_factor = float(ret_data[3])
+                    coordinates = [float(ret_data[1]), float(ret_data[2])]
+                    infrastructure[ret_data[0]].append({"coordinates": [], "price_factor": price_factor})
+                line = file.readline()
 
-        # 环境（公园）点绘制
-        elif work_type == 'environment':
-            return 0
+            file.close()
+
+            baidu_coordinate = coordinate_helper.wgs84_to_bd09(data_coordinate[0], data_coordinate[1])
+
+            factors = []
+            for key in infrastructure:
+                count = 0
+                factor = 0
+                for item_infra in infrastructure[key]:
+                    distance = geodesic((item_infra["coordinates"][1], item_infra["coordinates"][0]),
+                                        (baidu_coordinate[1], baidu_coordinate[0])).km
+                    print(distance)
+                    if distance < 3:
+                        factor = factor + item_infra["price_factor"] / math.exp(distance)
+                        count = count + 1
+                if count == 0:
+                    factor = 0
+                else:
+                    factor = factor / count
+                factors.append(factor)
+            # 模型加载
+            model = tf.keras.models.load_model("./static/py/predict/model")
+            # 模型预测值计算
+            price_predict = model.predict(price_data)
+
 
         else:
             # 错误请求
             return 0
 
+        '''
+        # 操作类型判断
+        if work_type == "data_show":
+            # sql 语句判断
+            sql = ""
+            data_return = {}
+            first_str = True
+
+            if json_data["House"]:
+                sql = "select * from houses"
+                results = db_helper.select_all(sql)
+
+                print(type(result))
+                data_return["House"] = result
+
+            for item in json_data:
+                if first_str:
+                    sql = sql + "'" + item + "'"
+                    first_str = False
+                else:
+                    sql = sql + "," + "'" + item + "'"
+
+            sql = "select * from infrastructures where `PointType` in (" + sql + ")"
+            print(sql)
+
+            response = {"status": True, "data manipulation": url_for('login')}
+            return jsonify(response)
+
+        else:
+            # 错误请求
+            return 0
+        '''
+
     else:
-        return render_template('index.html', init_map=url_for('init_map'))
+        return render_template('index.html')
 
 
 if __name__ == '__main__':
