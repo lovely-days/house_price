@@ -118,8 +118,8 @@ dataset /= std
 np.savetxt('../data/dataset.txt', dataset, fmt='%.18f', delimiter=',')
 np.savetxt('../data/labels.txt', labels, fmt='%.18f', delimiter=',')
 
-print("mean: " + mean)
-print("std: " + std)
+print("mean: ")
+print(mean)
+print("std: ")
+print(std)
 
-# dataset = np.loadtxt('../data/dataset.txt', dtype=np.float, unpack=False, delimiter=',')
-# labels = np.loadtxt('../data/labels.txt', dtype=np.float, unpack=False, delimiter=',')

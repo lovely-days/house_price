@@ -3,6 +3,7 @@ from flask import Flask, url_for, redirect, request, jsonify
 from flask import render_template
 
 import re
+import math
 from collections import defaultdict
 import tensorflow as tf
 from geopy.distance import geodesic
@@ -124,25 +125,27 @@ def index():
             data_coordinate = request_json.pop("coordinates")
 
             infrastructure = defaultdict(list)
-            mean = std = 0
+            mean = []
+            std = []
             file = open("./static/py/predict/data/infra_factor.txt", 'r', encoding='utf-8')
 
             line = file.readline()
             while line:
                 print(line)
                 ret_data = re.findall(r"([^,\n]+)", line)
-                if ret_data[0] == "mean&std":
-                    mean = ret_data[1]
-                    std = ret_data[2]
+                if ret_data[0] == "mean":
+                    for i in range(1, len(ret_data)):
+                        mean.append(float(ret_data[i]))
+                elif ret_data[0] == "std":
+                    for i in range(1, len(ret_data)):
+                        std.append(float(ret_data[i]))
                 else:
                     price_factor = float(ret_data[3])
                     coordinates = [float(ret_data[1]), float(ret_data[2])]
-                    infrastructure[ret_data[0]].append({"coordinates": [], "price_factor": price_factor})
+                    infrastructure[ret_data[0]].append({"coordinates": coordinates, "price_factor": price_factor})
                 line = file.readline()
 
             file.close()
-
-            baidu_coordinate = coordinate_helper.wgs84_to_bd09(data_coordinate[0], data_coordinate[1])
 
             factors = []
             for key in infrastructure:
@@ -150,8 +153,8 @@ def index():
                 factor = 0
                 for item_infra in infrastructure[key]:
                     distance = geodesic((item_infra["coordinates"][1], item_infra["coordinates"][0]),
-                                        (baidu_coordinate[1], baidu_coordinate[0])).km
-                    print(distance)
+                                        (data_coordinate[1], data_coordinate[0])).km
+                    # print(distance)
                     if distance < 3:
                         factor = factor + item_infra["price_factor"] / math.exp(distance)
                         count = count + 1
@@ -160,11 +163,28 @@ def index():
                 else:
                     factor = factor / count
                 factors.append(factor)
-            # 模型加载
-            model = tf.keras.models.load_model("./static/py/predict/model")
-            # 模型预测值计算
-            price_predict = model.predict(price_data)
 
+            dataset = np.array(factors)
+            mean = np.array(mean)
+            std = np.array(std)
+
+            dataset = np.reshape(dataset, (1, 6))
+            mean = np.reshape(mean, (1, 6))
+            std = np.reshape(std, (1, 6))
+
+            # 直接利用训练样本均值及均方差对待求数据极限归一化处理
+            dataset -= mean
+            dataset /= std
+
+            # 模型加载
+            model = tf.keras.models.load_model("./static/py/predict/model_19_339")
+            # 模型预测值计算
+            price_predict = model.predict(dataset[:])
+            print(price_predict)
+
+            json_return = {"predict": str(price_predict[0][0])}
+
+            return jsonify(json_return)
 
         else:
             # 错误请求

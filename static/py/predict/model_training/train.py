@@ -1,8 +1,8 @@
 # encoding:utf-8
+
 import os
 
 from tensorflow import keras
-import matplotlib.pyplot as plt
 import numpy as np
 
 # 模型训练
@@ -55,11 +55,11 @@ for row in range(len(val_dataset)):
 
 
 # 深度神经网络构建
-def build_model():
+def build_model(layers):
     keras_model = keras.Sequential()
 
     # 添加 8 个全连接层，每层 32 个神经元，激活采用 relu 函数
-    for num in range(12):
+    for num in range(layers):
         keras_model.add(keras.layers.Dense(32, activation='relu'))
 
     # 输出层，一个输出值，即单位房价数据
@@ -71,56 +71,71 @@ def build_model():
     return keras_model
 
 
-# 模型训练
-print("build model")
-model = build_model()
+loss_all = []
+validate_loss_all = []
 
-nums = 10
-num_val_samples = int(len(dataset) / nums)
-num_epochs = 200
+# 模型层数
+for layer_num in range(19, 20, 1):
 
-for n in range(nums):
-    print('processing fold #', n)
+    # 模型构建
+    print("build model")
+    model = build_model(layer_num)
 
-    # 依次把 k 分之一数据中的每一份作为校验数据集
-    every_val_dataset = dataset[n * num_val_samples: (n + 1) * num_val_samples]
-    every_val_labels = labels[n * num_val_samples: (n + 1) * num_val_samples]
+    nums = 10
+    num_val_samples = int(len(dataset) / nums)
+    epochs_step = 1
+    min_loss = 1800
 
-    # 把剩下的 k-1 分之一数据作为训练数据,如果第 i 分数据作为校验数据，那么把前 i-1 份和第 i 份之后的数据连起来
-    every_train_dataset = np.concatenate([dataset[: n * num_val_samples], dataset[(n + 1) * num_val_samples:]], axis=0)
-    every_train_labels = np.concatenate([labels[: n * num_val_samples], labels[(n + 1) * num_val_samples:]], axis=0)
+    # 训练迭代次数
+    for num_epochs in range(1, 400):
 
-    # 把分割好的训练数据和校验数据输入网络
-    model.fit(every_train_dataset, every_train_labels, validation_data=(every_val_dataset, every_val_labels),
-              epochs=num_epochs, batch_size=32, verbose=1)
+        print("layers" + str(layer_num) + "num_epochs" + str(num_epochs))
+
+        loss_sum = 0
+        mae_sum = 0
+
+        # k 分训练法
+        for n in range(nums):
+            print('processing fold #', n)
+
+            # 依次把 k 分之一数据中的每一份作为校验数据集
+            every_val_dataset = dataset[n * num_val_samples: (n + 1) * num_val_samples]
+            every_val_labels = labels[n * num_val_samples: (n + 1) * num_val_samples]
+
+            # 把剩下的 k-1 分之一数据作为训练数据,如果第 i 分数据作为校验数据，那么把前 i-1 份和第 i 份之后的数据连起来
+            every_train_dataset = np.concatenate([dataset[: n * num_val_samples], dataset[(n + 1) * num_val_samples:]],
+                                                 axis=0)
+            every_train_labels = np.concatenate([labels[: n * num_val_samples], labels[(n + 1) * num_val_samples:]],
+                                                axis=0)
+
+            # 把分割好的训练数据和校验数据输入网络
+            model.fit(every_train_dataset, every_train_labels, epochs=epochs_step, batch_size=32, verbose=1)
+
+            validate = model.evaluate(every_val_dataset, every_val_labels, batch_size=32)
+            loss_sum = loss_sum + validate[0]
+            mae_sum = mae_sum + validate[1]
+
+        validate_loss_all.append([layer_num, num_epochs, loss_sum/nums, mae_sum/nums])
+
+        test = model.evaluate(test_dataset, test_labels, batch_size=32)
+        loss_all.append([layer_num, num_epochs, test[0], test[1]])
+
+        # 较小损失值模型保存
+        if test[0] < min_loss:
+            min_loss = test[0]
+            # 模型保存
+            checkpoint_path = "../model1/model_" + str(layer_num) + "_" + str(num_epochs)
+            print(checkpoint_path)
+            checkpoint_dir = os.path.dirname(checkpoint_path)
+
+            cp_callback = keras.callbacks.ModelCheckpoint(filepath=checkpoint_path, verbose=1, save_weights_only=True,
+                                                          period=5)
+            model.save(checkpoint_path)
 
 
-# 测试集数据损失值及平均绝对误差
-print(model.evaluate(test_dataset, test_labels, batch_size=32))
+validate_loss_all = np.array(validate_loss_all)
+np.savetxt('../data/val_loss_epoch_21.txt', validate_loss_all, fmt='%.18f', delimiter=',')
 
-# 测试集预测值与真值拟合情况
-test_predict = model.predict(test_dataset, batch_size=32)
-
-plt.scatter(test_labels[:], test_predict[:])
-plt.plot([0, 30000], [0, 30000], 'r', label=' y=x')
-plt.xlabel('true value')
-plt.ylabel('predict value')
-plt.legend()
-plt.show()
-
-# 模型参数保存,无模型图架构，加载时需手动构建模型
-'''
-checkpoint_path = "./predict2/cp.ckpt"
-checkpoint_dir = os.path.dirname(checkpoint_path)
-
-cp_callback = keras.callbacks.ModelCheckpoint(filepath=checkpoint_path, verbose=1, save_weights_only=True, period=5)
-model.save_weights(checkpoint_path.format(epoch=0))
-'''
-
-# 模型保存
-checkpoint_path = "../model"
-checkpoint_dir = os.path.dirname(checkpoint_path)
-
-cp_callback = keras.callbacks.ModelCheckpoint(filepath=checkpoint_path, verbose=1, save_weights_only=True, period=5)
-model.save(checkpoint_path)
+loss_all = np.array(loss_all)
+np.savetxt('../data/test_loss_epoch_21.txt', loss_all, fmt='%.18f', delimiter=',')
 

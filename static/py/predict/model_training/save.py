@@ -10,8 +10,8 @@ import numpy as np
 # 数据加载
 # dataset 为样本矩阵，包含对 6 大基础设施信息评值
 # labels 为标签矩阵，包含单位房价数据
-dataset = np.loadtxt('./dataset.txt', dtype=np.float, unpack=False, delimiter=',')
-labels = np.loadtxt('./labels.txt', dtype=np.float, unpack=False, delimiter=',')
+dataset = np.loadtxt('../data/dataset.txt', dtype=np.float, unpack=False, delimiter=',')
+labels = np.loadtxt('../data/labels.txt', dtype=np.float, unpack=False, delimiter=',')
 
 # 1/10 数据用作检验数据集
 test_dataset = []
@@ -35,16 +35,25 @@ dataset = np.array(temp_dataset)
 labels = np.array(temp_labels)
 
 # 模型加载
-model = tf.keras.models.load_model("../model")
+model = tf.keras.models.load_model("../model_19_339")
 
 # 模型评估
 print(model.evaluate(test_dataset, test_labels, batch_size=32))
 
 # 模型预测值计算
 test_predict = model.predict(test_dataset, batch_size=32)
+all_predict = model.predict(dataset, batch_size=32)
 
 # 预测值与真值拟合分析
 plt.scatter(test_labels[:], test_predict[:])
+plt.plot([0, 40000], [0, 40000], 'r', label=' y=x')
+plt.xlabel('true value')
+plt.ylabel('predict value')
+plt.legend()
+plt.show()
+
+# 训练样本与真值拟合分析
+plt.scatter(labels[:], all_predict[:])
 plt.plot([0, 40000], [0, 40000], 'r', label=' y=x')
 plt.xlabel('true value')
 plt.ylabel('predict value')

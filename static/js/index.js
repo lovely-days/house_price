@@ -249,13 +249,38 @@ function DataPredict()
     if ($("#data_predict_control_label").attr("class") == "nav-link")
     {
         $("#data_predict_control_label").attr("class","nav-link active")
+        alert("请选择预测位置")
 
+        $("#map").on('click', function(e){
+        var coordinate = ol.proj.transform(map.getEventCoordinate(e.originalEvent), 'EPSG:3857', 'EPSG:4326')
+        alert(coordinate)
+        alert(coordinate[0])
+        alert(coordinate[1])
+
+        $.ajax({
+        type: 'POST',
+        data: JSON.stringify({
+            type: "house_predict",
+            coordinates: [coordinate[0],coordinate[1]],
+        }),
+        heads : {
+            'content-type' : 'application/json;charset=UTF-8'
+        },
+        dataType: 'json',
+        success: function(response) {
+            alert("该处预测单位房价为 " + response["predict"] + " 元每平米")
+            $("#map").off("click")
+            },
+        error: function(request, textStatus, errorThrown) {
+            alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
+            }
+        });
+    })
 
     }
     else
     {
         $("#data_predict_control_label").attr("class","nav-link")
-
     }
 }
 
