@@ -122,8 +122,9 @@ def index():
             return jsonify(json_return)
 
         if work_type == "condition_select":
-            json_return = geojson_helper.select_coordinate_geo()
 
+            json_return = geojson_helper.select_coordinate_geo(request_json)
+            # print(request_json)
             return jsonify(json_return)
 
         if work_type == "house_predict":

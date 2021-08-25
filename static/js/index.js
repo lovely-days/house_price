@@ -176,8 +176,8 @@ function OpenConditionSelectCard() {
 
     if ($("#condition_select_control_label").attr("class") == "nav-link")
     {
-        $("#condition_select_control_label").attr("class", "nav-link active")
-        $("#condition_select_control_card").css("display", "block")
+        $("#condition_select_control_label").attr("class", "nav-link active")   
+        setTimeout(()=>{$("#condition_select_control_card").css("display", "block")} ,500)
     }
     else
     {
@@ -187,17 +187,28 @@ function OpenConditionSelectCard() {
     }
 }
 
-function ConditionSelectRequest(){
+function ConditionSelectRequest() {
     $.ajax({
         type: 'POST',
         data: JSON.stringify({
             type: 'condition_select',
+            region: $("#condition_region").val(),
+            roomtype: $("#condition_roomtype").val(),
+            area: $("#condition_area").val(),
+            all_price: $("#condition_all_price").val(),
+            unit_price: $("#condition_unit_price").val(),
+            direction: $("#condition_direction").val(),
+            floor: $("#condition_floor").val(),
+            house_type: $("#condition_house_type").val()   
         }),
         heads : {
             'content-type' : 'application/json;charset=UTF-8'
         },
         dataType: 'json',
-        success: function(response) {
+        success: function (response) {
+            alert(JSON.stringify(response))
+            if (JSON.stringify(response["features"]) == [])
+                alert("未找到该条件下房源")
             
             var vectorSource = new ol.source.Vector({
                 features: (new ol.format.GeoJSON()).readFeatures(response,{
@@ -303,7 +314,7 @@ function heat_map()
 
 function other_map()
 {
-    
+    RemoveAllLayer()
 }
 
 function analysis_remove()
@@ -327,8 +338,8 @@ function DataPredict()
 
     if ($("#data_predict_control_label").attr("class") == "nav-link")
     {
-        $("#data_predict_control_label").attr("class","nav-link active")
-        alert("请选择预测位置")
+        $("#data_predict_control_label").attr("class", "nav-link active")
+        setTimeout(()=>{alert("请选择预测位置")} ,500)
 
         $("#map").on('click', function(e){
         var coordinate = ol.proj.transform(map.getEventCoordinate(e.originalEvent), 'EPSG:3857', 'EPSG:4326')

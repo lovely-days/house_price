@@ -132,61 +132,118 @@
             </div>
         </div>
 
-        <div class="modal" id="condition_select_control_card" style="display:none;">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">条件选择</h5>
+        <!--条件检索模态框显示-->
+        <div class="modal" id="condition_select_control_card" style="display:none">
+            <div class="modal-dialog" role="document" >
+                <div class="modal-content" style="position:relative;right:200px;top: 100px; width: 650px;height: 400px;">
+                    <div style="margin-left: 30px;margin-top: 10px;margin-right: 20px;">
+                        <div class="row">
+                            <div class="form-group" style="position:inherit;left: 10px ; width: 200px;" >
+                                <label class="form-label mt-4">区域</label>
+                                <select class="form-select small" id="condition_region" style="width: 175px;">
+                                    <option value="1">云龙区</option>
+                                    <option value="2">鼓楼区</option>
+                                    <option value="3">铜山区</option>
+                                    <option value="4">泉山区</option>
+                                    <option value="5">金山桥开发区</option>
+                                    <option value="6">新城区</option>
+                                    <option value="7">贾汪区</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="position:inherit;left: 10px ; width: 200px" >
+                                <label class="form-label mt-4">屋型</label>
+                                <select class="form-select small" id="condition_roomtype" style="width: 175px;">
+                                    <option value="1">一室</option>
+                                    <option value="2">二室及以下</option>
+                                    <option value="3">三室及以下</option>
+                                    <option value="4">四室及以下</option>
+                                    <option value="5">五室及以下</option>
+                                    <option value="0">全选</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="position:inherit;left: 10px ; width: 200px">
+                                <label class="form-label mt-4">建筑面积</label>
+                                <select class="form-select small" id="condition_area" style="width: 175px;">
+                                    <option value="1">小于50㎡</option>
+                                    <option value="2">50-80㎡</option>
+                                    <option value="3">80-120㎡</option>
+                                    <option value="4">120-150㎡</option>
+                                    <option value="5">大于150㎡</option>
+                                    <option value="0">全选</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group" style="position:inherit;left: 10px ; width: 200px;" >
+                                <label class="form-label mt-4">房屋价格</label>
+                                <select class="form-select small" id="condition_all_price" style="width: 175px;">
+                                    <option value="1">小于50万</option>
+                                    <option value="2">50-100万</option>
+                                    <option value="3">100-150万</option>
+                                    <option value="4">150万以上</option>
+                                    <option value="0">全选</option>
+                                 </select>
+                            </div>
+                            <div class="form-group" style="position:inherit;left: 10px ; width: 200px" >
+                                <label class="form-label mt-4">房屋单价</label>
+                                <select class="form-select small" id="condition_unit_price" style="width: 175px;">
+                                    <option value="1">小于5000元</option>
+                                    <option value="2">5000-10000元</option>
+                                    <option value="3">15000-20000元</option>
+                                    <option value="4">20000元以上</option>
+                                    <option value="0">全选</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="position:inherit;left: 10px ; width: 200px" >
+                                <label class="form-label mt-4">房屋朝向</label>
+                                <select class="form-select small" id="condition_direction" style="width: 175px;">
+                                    <option value="1">朝南</option>
+                                    <option value="2">朝东</option>
+                                    <option value="3">朝北</option>
+                                    <option value="4">朝西</option>
+                                    <option value="0">全选</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group" style="position:inherit;left: 10px ; width: 200px">
+                                <label class="form-label mt-4">楼层</label>
+                                <select class="form-select small" id="condition_floor" style="width: 175px;">
+                                    <option value="1">低楼层</option>
+                                    <option value="2">中楼层</option>
+                                    <option value="3">高楼层</option>
+                                    <option value="0">全选</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="position:inherit;left: 10px ; width: 200px" >
+                                <label class="form-label mt-4">装修</label>
+                                <select class="form-select small" id="condition_house_type" style="width: 175px;">
+                                    <option value="1">精装修</option>
+                                    <option value="2">普通装修</option>
+                                    <option value="3">毛坯房</option>
+                                    <option value="4">其他</option>
+                                    <option value="0">全选</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <br>
+
+                        <div class="modal-footer gap-2">
+                            <button type="button" class="btn btn-primary" style="width: 100px;height:40px;" onclick="ConditionSelectRequest()">检索</button>
+                            <button type="button" class="btn btn-secondary" style="width: 100px;height:40px;" data-bs-dismiss="modal" onclick="ConditionSelectModalClose()">关闭</button>
+                        </div>
+
                     </div>
 
-                    <div class="bs-docs-section" style="margin-top: 1em;margin-left: 1em;margin-right: 1em;margin-bottom: 0.5em; border-right: 1px;"></div>
-
-                    <div class="form-group" >
-                        <label class="form-label mt-4">区域</label>
-                        <select class="form-select small" id="area">
-                            <option value="1">铜山区</option>
-                            <option value="2">泉山区</option>
-                            <option value="3"></option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
-                    </div>
                     
-                    <div class="form-group">
-                        <label class="form-label mt-4">房屋类型</label>
-                        <select class="form-select small" id="ype">
-                        <option value="1">三室两厅</option>
-                        <option value="2">泉山区</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label mt-4">价格区间</label>
-                        <select class="form-select small" id="price">
-                            <option value="1">5000-10000</option>
-                            <option value="2">10000-15000</option>
-                            <option value="3">15000-20000</option>
-                            <option value="4">20000-25000</option>
-                            <option value="5">25000以上</option>
-                            </select>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="ConditionSelectRequest()">Save changes</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="ConditionSelectModalClose()">Close</button>
-                    </div>
-
-                </div>
-                </div>
                 </div>
             </div>
-        </div>
-
-        <div id="data_select_show" style="position: absolute; left: 300px; top: 100px; height:100px;width:200px;background-color: black; display: none;">
-
         </div>
 
         <div id="condition_select_show" style="position: absolute; left: 500px; top: 500px;">
