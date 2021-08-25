@@ -36,7 +36,13 @@
     $("singleclick").off("click")
     */
 
-// DataShowCard
+function RemoveAllLayer()
+{
+    map.setLayerGroup(new ol.layer.Group())
+    map.addLayer(new ol.layer.Tile({ source: new ol.source.OSM() }))
+}
+
+// Data Show
 
 function OpenDataShowCard()
 {
@@ -62,13 +68,7 @@ function OpenDataShowCard()
 
 function DataShow()
 {
-    //map.removeLayer(House)
-    //map.removeLayer(Hospital)
-    //map.removeLayer(School)
-    //map.removeLayer(Environment)
-    //map.removeLayer(Subway)
-    //map.removeLayer(Bus_station)
-    //map.removeLayer(Shopping)
+    RemoveAllLayer()
 
     if($("#house_check").prop("checked"))
     {
@@ -77,7 +77,7 @@ function DataShow()
     }
 
     if($("#hospital_check").prop("checked"))
-    {
+    { 
         map.addLayer(Hospital)
         alert(2)
     }
@@ -136,8 +136,12 @@ function CheckOrCancelAll()
     }
 }
 
+// Data Select
+
 function OpenDataSelectCard()
 {
+    RemoveAllLayer()
+
     $("#data_show_control_label").attr("class","nav-link")
     $("#condition_select_control_label").attr("class","nav-link")
     $("#data_analysis_control_label").attr("class","nav-link")
@@ -157,7 +161,11 @@ function OpenDataSelectCard()
     }
 }
 
-function OpenConditionSelectCard(){
+// Condition Select
+
+function OpenConditionSelectCard() {
+    RemoveAllLayer()
+
     $("#data_show_control_label").attr("class","nav-link")
     $("#data_select_control_label").attr("class", "nav-link")
     $("#data_analysis_control_label").attr("class","nav-link")
@@ -179,8 +187,62 @@ function OpenConditionSelectCard(){
     }
 }
 
+function ConditionSelectRequest(){
+    $.ajax({
+        type: 'POST',
+        data: JSON.stringify({
+            type: 'condition_select',
+        }),
+        heads : {
+            'content-type' : 'application/json;charset=UTF-8'
+        },
+        dataType: 'json',
+        success: function(response) {
+            
+            var vectorSource = new ol.source.Vector({
+                features: (new ol.format.GeoJSON()).readFeatures(response,{
+                    dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'
+                })
+            });
+
+            var ConditionSelect = new ol.layer.Vector({
+	            source: vectorSource,
+	            style:new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 5,//半径
+                        fill: new ol.style.Fill({//填充样式
+                            color: '#ff6688',
+                        }),
+                        stroke: new ol.style.Stroke({//边界样式
+                            color: '#555555',
+                            width: 1
+                        })
+                    }),
+                })
+            });
+
+            $("#condition_select_control_label").attr("class", "nav-link")
+            $("#condition_select_control_card").css("display", "none")
+            map.addLayer(ConditionSelect);
+            },
+        error: function(request, textStatus, errorThrown) {
+            alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
+            }
+        });
+
+}
+
+function ConditionSelectModalClose(){
+    $("#condition_select_control_label").attr("class", "nav-link")
+    $("#condition_select_control_card").css("display", "none")
+}
+
+// Data Analysis
+
 function OpenDataAnalysisCard()
 {
+    RemoveAllLayer()
+
     $("#data_show_control_label").attr("class","nav-link")
     $("#data_select_control_label").attr("class", "nav-link")
     $("#condition_select_control_label").attr("class","nav-link")
@@ -220,12 +282,12 @@ function heat_map()
                 features: (new ol.format.GeoJSON()).readFeatures(response,{
                     dataProjection : 'EPSG:4326',featureProjection : 'EPSG:3857'})});
                 // Heatmap热力图
-            var vector = new ol.layer.Heatmap({
+            var HeatMap = new ol.layer.Heatmap({
                 source: vectorSource,
                 blur: 10,
                 radius: 3,
             });
-            map.addLayer(vector);
+            map.addLayer(HeatMap);
             },
         error: function(request, textStatus, errorThrown) {
             alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
@@ -239,8 +301,22 @@ function heat_map()
 
 }
 
+function other_map()
+{
+    
+}
+
+function analysis_remove()
+{
+    RemoveAllLayer()
+}
+
+// Data Predict
+
 function DataPredict()
 {
+    RemoveAllLayer()
+
     $("#data_show_control_label").attr("class","nav-link")
     $("#data_select_control_label").attr("class", "nav-link")
     $("#condition_select_control_label").attr("class","nav-link")
@@ -256,9 +332,6 @@ function DataPredict()
 
         $("#map").on('click', function(e){
         var coordinate = ol.proj.transform(map.getEventCoordinate(e.originalEvent), 'EPSG:3857', 'EPSG:4326')
-        alert(coordinate)
-        alert(coordinate[0])
-        alert(coordinate[1])
 
         $.ajax({
         type: 'POST',

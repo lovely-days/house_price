@@ -101,9 +101,17 @@
                                     <input type="radio" class="form-check-input" name="optionsRadios" id="heat_map" onclick="heat_map()">
                                     <label class="form-check-label" for="heat_map">热力图分析</label>
                                 </div>
+
                                 <div>
-                                    <input type="radio" class="form-check-input" name="optionsRadios" id="other_map">
+                                    <input type="radio" class="form-check-input" name="optionsRadios" id="other_map" onclick="other_map()">
                                     <label class="form-check-label" for="heat_map">其他分析</label>
+                                </div>
+                                
+                                <br>
+
+                                <div>
+                                    <input type="radio" class="form-check-input" name="optionsRadios" id="remove_map" onclick="analysis_remove()">
+                                    <label class="form-check-label text-primary" for="heat_map">清空</label>
                                 </div>
 
 
@@ -133,20 +141,20 @@
 
                     <div class="bs-docs-section" style="margin-top: 1em;margin-left: 1em;margin-right: 1em;margin-bottom: 0.5em; border-right: 1px;"></div>
 
-                    <div class="form-group">
-                        <label for="exampleSelect1" class="form-label mt-4">区域</label>
+                    <div class="form-group" >
+                        <label class="form-label mt-4">区域</label>
                         <select class="form-select small" id="area">
                             <option value="1">铜山区</option>
                             <option value="2">泉山区</option>
-                            <option value="3">3</option>
+                            <option value="3"></option>
                             <option value="4">4</option>
                             <option value="5">5</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
-                        <label for="exampleSelect1" class="form-label mt-4">房屋类型</label>
-                        <select class="form-select small" id="area">
+                        <label class="form-label mt-4">房屋类型</label>
+                        <select class="form-select small" id="ype">
                         <option value="1">三室两厅</option>
                         <option value="2">泉山区</option>
                         <option value="3">3</option>
@@ -156,14 +164,19 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="exampleSelect1" class="form-label mt-4">价格区间</label>
-                        <select class="form-select small" id="area">
+                        <label class="form-label mt-4">价格区间</label>
+                        <select class="form-select small" id="price">
                             <option value="1">5000-10000</option>
                             <option value="2">10000-15000</option>
                             <option value="3">15000-20000</option>
                             <option value="4">20000-25000</option>
                             <option value="5">25000以上</option>
                             </select>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="ConditionSelectRequest()">Save changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="ConditionSelectModalClose()">Close</button>
                     </div>
 
                 </div>

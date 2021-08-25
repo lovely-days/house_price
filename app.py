@@ -10,6 +10,7 @@ from geopy.distance import geodesic
 import numpy as np
 
 import src.static.py.helper.sql as db_helper
+import src.static.py.helper.geojson as geojson_helper
 import src.static.py.helper.validate as validate_helper
 import src.static.py.helper.co_system as coordinate_helper
 from src.static.py.helper import config
@@ -120,6 +121,11 @@ def index():
 
             return jsonify(json_return)
 
+        if work_type == "condition_select":
+            json_return = geojson_helper.select_coordinate_geo()
+
+            return jsonify(json_return)
+
         if work_type == "house_predict":
             # 经度，纬度
             data_coordinate = request_json.pop("coordinates")
@@ -190,38 +196,7 @@ def index():
             # 错误请求
             return 0
 
-        '''
-        # 操作类型判断
-        if work_type == "data_show":
-            # sql 语句判断
-            sql = ""
-            data_return = {}
-            first_str = True
 
-            if json_data["House"]:
-                sql = "select * from houses"
-                results = db_helper.select_all(sql)
-
-                print(type(result))
-                data_return["House"] = result
-
-            for item in json_data:
-                if first_str:
-                    sql = sql + "'" + item + "'"
-                    first_str = False
-                else:
-                    sql = sql + "," + "'" + item + "'"
-
-            sql = "select * from infrastructures where `PointType` in (" + sql + ")"
-            print(sql)
-
-            response = {"status": True, "data manipulation": url_for('login')}
-            return jsonify(response)
-
-        else:
-            # 错误请求
-            return 0
-        '''
 
     else:
         return render_template('index.html')
