@@ -111,6 +111,7 @@ function DataShow()
         map.addLayer(Shopping)
         alert(7)
     }
+
 }
 
 function CheckOrCancelAll()
@@ -163,15 +164,17 @@ function OpenConditionSelectCard(){
     $("#data_predict_control_label").attr("class","nav-link")
 
     $("#data_show_control_card").css("display","none")
-    $("#data_analysis_control_card").css("display","none")
+    $("#data_analysis_control_card").css("display", "none")
 
     if ($("#condition_select_control_label").attr("class") == "nav-link")
     {
-        $("#condition_select_control_label").attr("class","nav-link active")
+        $("#condition_select_control_label").attr("class", "nav-link active")
+        $("#condition_select_control_card").css("display", "block")
     }
     else
     {
-        $("#condition_select_control_label").attr("class","nav-link")
+        $("#condition_select_control_label").attr("class", "nav-link")
+        $("#condition_select_control_card").css("display", "none")
 
     }
 }
@@ -269,10 +272,12 @@ function DataPredict()
         dataType: 'json',
         success: function(response) {
             alert("该处预测单位房价为 " + response["predict"] + " 元每平米")
+            $("#data_predict_control_label").attr("class","nav-link")
             $("#map").off("click")
             },
         error: function(request, textStatus, errorThrown) {
             alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
+            $("#map").off("click")
             }
         });
     })

@@ -124,7 +124,7 @@ for layer_num in range(19, 20, 1):
         if test[0] < min_loss:
             min_loss = test[0]
             # 模型保存
-            checkpoint_path = "../model1/model_" + str(layer_num) + "_" + str(num_epochs)
+            checkpoint_path = "../model_" + str(layer_num) + "_" + str(num_epochs)
             print(checkpoint_path)
             checkpoint_dir = os.path.dirname(checkpoint_path)
 
@@ -134,8 +134,8 @@ for layer_num in range(19, 20, 1):
 
 
 validate_loss_all = np.array(validate_loss_all)
-np.savetxt('../data/val_loss_epoch_21.txt', validate_loss_all, fmt='%.18f', delimiter=',')
+np.savetxt('../data/val_loss_epoch.txt', validate_loss_all, fmt='%.18f', delimiter=',')
 
 loss_all = np.array(loss_all)
-np.savetxt('../data/test_loss_epoch_21.txt', loss_all, fmt='%.18f', delimiter=',')
+np.savetxt('../data/test_loss_epoch.txt', loss_all, fmt='%.18f', delimiter=',')
 
