@@ -3,6 +3,7 @@ from flask import Flask, url_for, redirect, request, jsonify
 from flask import render_template
 
 import src.static.py.helper.sql as db_helper
+import src.static.py.helper.analysis as analysis_helper
 import src.static.py.helper.graphic as graphic_helper
 import src.static.py.helper.predict as predict_helper
 import src.static.py.helper.geojson as geojson_helper
@@ -117,16 +118,28 @@ def index():
             return jsonify(json_return)
 
         if work_type == "predict_interpolation_map":
-            return 0
+            return_json = analysis_helper.interpolation()
+            return jsonify(return_json)
 
         if work_type == "condition_select":
-
             json_return = geojson_helper.select_coordinate_geo(request_json)
             # print(request_json)
             return jsonify(json_return)
 
         if work_type == "data_select":
-            return 0
+            select_type = request_json["select_type"]
+            condition = request_json["select_condition"]
+
+            if select_type == 'Rectangle':
+                return_json = graphic_helper.rectangle(condition)
+            elif select_type == 'Circle':
+                return_json = graphic_helper.circle(condition)
+            elif select_type == 'Polygon':
+                return_json = graphic_helper.polygon(condition)
+            else:
+                return_json = {"wrong"}
+
+            return jsonify(return_json)
 
         if work_type == "house_predict":
             # 经度，纬度

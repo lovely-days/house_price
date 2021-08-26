@@ -73,4 +73,3 @@ def price_predict(data_coordinate=[]):
     json_return = {"predict": str(predict_price[0][0])}
 
     return json_return
-

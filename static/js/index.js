@@ -166,39 +166,33 @@ function OpenDataSelectCard()
 
 function DataSelectRequest()
 {
-    alert(1)
-    RemoveAllLayer()
     var status = $("#data_select_operator").val()
-    alert(status)
 
-    if (status == 'None')
+    if (status == 'Clear')
     {
-        alert(1)
+        RemoveAllLayer()
+        return 0
     }
-    else if (status == 'Point')
-    {                               
-        alert(2)
-    }
-    else if (status == 'LineString')
-    {
-        alert(3)
-    }
-    else if (status == 'Square')
+    else if (status == 'Rectangle')
     {
         alert(4)       
-    }
-    else if (status == 'Polygon')
-    {
-        alert(5)
     }
     else if (status == 'Circle')
     {
         alert(6)        
     }
+    else if (status == 'Polygon')
+    {
+        alert(5)
+    }
     else
     {
-        alert("1") 
+        alert("错误输入，请重试!") 
     }
+
+    // Circle : [longitude,Latitude,radius]
+    // Rectangle : [longitude,Latitude(left-top),longitude,Latitude(right-bottom)]
+    // polygon : [[longitude,longitude],...,[-1,-1]]
 
     select_condition = []
 
@@ -402,17 +396,39 @@ function predict_interpolation_map()
         },
         dataType: 'json',
         success: function(response) {
-            var vectorSource = new ol.source.Vector({
-                features: (new ol.format.GeoJSON()).readFeatures(response,{
-                    dataProjection : 'EPSG:4326',featureProjection : 'EPSG:3857'})});
-                // Heatmap热力图
-            var HeatMap = new ol.layer.Heatmap({
-                source: vectorSource,
-                blur: 10,
-                radius: 3,
-            });
-            map.addLayer(HeatMap);
-            },
+            longitude = response["longitude"]
+            latitude = response["latitude"]
+            price = response["price"]
+
+            if (values.length>3){
+                let variogram=kriging.train(values,lngs,lats,params.krigingModel,params.krigingSigma2,params.krigingAlpha);
+                let polygons=[[[116,34],[116,35],[117,35],[117,34]]];
+                let grid=kriging.grid(polygons,variogram,(117-116)/200);
+                //创建新图层
+                canvasLayer=new ol.layer.Image({
+                    source: new ol.source.ImageCanvas({
+                        canvasFunction:(extent, resolution, pixelRatio, size, projection) =>{
+                            let canvas = document.createElement('canvas');
+                                canvas.width = size[0];
+                                canvas.height = size[1];
+                                canvas.style.display='block';
+                                //设置canvas透明度
+                                canvas.getContext('2d').globalAlpha=params.canvasAlpha;                          
+                                //使用分层设色渲染
+                            kriging.plot(canvas,grid,[extent[0],extent[2]],[extent[1],extent[3]],params.colors);
+                                return canvas;
+                        },
+                    projection: 'EPSG:4326'
+                    })
+                })
+                //向map添加图层
+                map.addLayer(canvasLayer);
+            }
+            else {
+                alert("有效样点个数不足，无法插值");
+            }
+            drawKriging();            
+        },
         error: function(request, textStatus, errorThrown) {
             alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
             }

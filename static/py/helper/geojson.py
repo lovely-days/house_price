@@ -98,3 +98,5 @@ test_dic = {'region': '1', 'roomtype': '0', 'area': '3', 'all_price': '3', 'unit
 select_coordinate_geo(test_dic)
 '''
 
+
+
