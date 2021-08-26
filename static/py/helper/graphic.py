@@ -53,8 +53,8 @@ def get_all_house_data():
 # input: 查询条件字典，圆心坐标及半径
 # output: 对应房价点 json 数据
 def circle(condition={}):
-    radius = condition["select_condition"][3]
-    coordinate = [condition["select_condition"][0], condition["select_condition"][1]]
+    radius = float(condition["select_condition"][3])
+    coordinate = [float(condition["select_condition"][0]), float(condition["select_condition"][1])]
 
     house_id_coordinate = get_house_id()
     all_house_data = get_all_house_data()
@@ -62,7 +62,7 @@ def circle(condition={}):
     features = []
 
     for i,item in house_id_coordinate:
-        distance = geodesic((item["coordinate"][1], item["coordinate"][0]),(coordinate[1],coordinate[0])).km
+        distance = geodesic((item["coordinate"][1], item["coordinate"][0]), (coordinate[1], coordinate[0])).km
         if distance <= radius:
             return_data.append(all_house_data[i])
 
@@ -89,7 +89,7 @@ def circle(condition={}):
 def rectangle(condition={}):
     max_longitude = max(float(condition["select_condition"][0][0]), float(condition["select_condition"][1][0]))
     min_longitude = min(float(condition["select_condition"][0][0]), float(condition["select_condition"][1][0]))
-    max_latitude = min(float(condition["select_condition"][0][1]), float(condition["select_condition"][1][1]))
+    max_latitude = max(float(condition["select_condition"][0][1]), float(condition["select_condition"][1][1]))
     min_latitude = min(float(condition["select_condition"][0][1]), float(condition["select_condition"][1][1]))
 
     house_id_coordinate = get_house_id()
@@ -119,20 +119,73 @@ def rectangle(condition={}):
     return json_return
 
 
-# 查询多边形内房价点数据
+# 射线法查询多边形内房价点数据
 # input:  多边形点坐标集合，以 [-1,-1] 结束
 # output: 对应房价点 json 数据
 def polygon(condition={}):
-    coordinate = condition["select_condition"]
+    # [[longitude, latitude]...]
+    coordinates = []
+
+    # 用于优化剪枝
+    polygon_longitudes = []
+    polygon_latitudes = []
+
+    # 坐标值转为 float 类型数据
+    for item in condition["select_condition"]:
+        coordinates.append([float(item[0]), float(item[1])])
+        polygon_longitudes.append(float(item[0]))
+        polygon_latitudes.append(float(item[1]))
+
+    # 剪枝操作
+    max_longitude = max(polygon_longitudes)
+    min_longitude = min(polygon_longitudes)
+    max_latitude = max(polygon_latitudes)
+    min_latitude = min(polygon_latitudes)
 
     house_id_coordinate = get_house_id()
     all_house_data = get_all_house_data()
     return_data = []
     features = []
 
+    # 遍历所有房价点
     for i, item in house_id_coordinate:
-        distance = geodesic((item["coordinate"][1], item["coordinate"][0]), (coordinate[1], coordinate[0])).km
-        if distance <= radius:
+        status = 0
+        coordinate_i = item["coordinate"]
+
+        # 当点不在最大最小坐标值构成矩形区域内时不可能在区域内，跳过操作
+        if coordinate_i[0] > max_longitude or coordinate_i[0] < min_longitude \
+                or coordinate_i[1] > max_latitude or coordinate_i[1] < min_latitude:
+            continue
+
+        # 在矩形区域内时执行射线法判断是否在多边形区域内
+        for j, in coordinates:
+            coordinate1 = coordinates[j+1]
+            coordinate0 = coordinates[j]
+            # 判断未到点集尾部
+            if coordinate1[0] != -1:
+                # 判断纵坐标是否在两点之间
+                min_lat = min(coordinate0[1], coordinate1[1])
+                max_lat = max(coordinate0[1], coordinate1[1])
+                # 不在区间内，不可能有交点
+                if coordinate_i[1] < min_lat or coordinate_i[1] > max_lat:
+                    continue
+
+                # 判断斜率为 0 情况
+                if coordinate1[0] == coordinate0[0]:
+                    if coordinate0[0] <= coordinate_i[0]:
+                        status = status + 1
+                    else:
+                        continue
+                else:
+                    # 直线斜率,截距
+                    k = (coordinate1[1] - coordinate0[1])/(coordinate1[0] - coordinate0[0])
+                    b = (coordinate1[0]*coordinate0[1]-coordinate0[1]*coordinate1[0])/(coordinate1[0]-coordinate0[0])
+                    x_i = (coordinate_i[1]-b)/k
+                    if x_i < coordinate_i[0]:
+                        status = status+1
+
+        # 交点个数为奇数判断点在区域内
+        if status/2 != float(status)/2:
             return_data.append(all_house_data[i])
 
     for item in return_data:

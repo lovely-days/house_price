@@ -35,12 +35,12 @@ file.close()
 # 117.052237,34.385425
 # 117.342002,34.151637
 #  经度 ，纬度
-for longitude in range(117052, 117342, 3):
-    for latitude in range(34151, 34385, 3):
+for longitude in range(117085, 117342, 3):
+    for latitude in range(34334, 34385, 3):
         data_coordinate = coordinate_helper.gcj02_to_wgs84(float(longitude) / 1000, float(latitude) / 1000)
 
         print(data_coordinate)
-        print([longitude,latitude])
+        print([longitude, latitude])
         factors = []
         for key in infrastructure:
             count = 0
