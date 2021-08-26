@@ -17,6 +17,9 @@
     map.addControl(new ol.control.FullScreen())
     map.addControl(new ol.control.ScaleLine())
     map.addControl(new ol.control.ZoomSlider())
+    
+ 
+
 
     /*
     map.on('singleclick', function(e){
@@ -140,25 +143,98 @@ function CheckOrCancelAll()
 
 function OpenDataSelectCard()
 {
-    RemoveAllLayer()
-
+    
     $("#data_show_control_label").attr("class","nav-link")
     $("#condition_select_control_label").attr("class","nav-link")
     $("#data_analysis_control_label").attr("class","nav-link")
     $("#data_predict_control_label").attr("class","nav-link")
 
-    $("#data_show_control_card").css("display","none")
     $("#data_analysis_control_card").css("display","none")
 
     if ($("#data_select_control_label").attr("class") == "nav-link")
     {
-            $("#data_select_control_label").attr("class", "nav-link active")
+        $("#data_select_control_label").attr("class","nav-link active")
+        $("#data_select_control_card").css("display","block")  
     }
     else
     {
         $("#data_select_control_label").attr("class","nav-link")
-
+        $("#data_select_control_card").css("display","none")
+        
     }
+}
+
+function DataSelectRequest()
+{
+    alert(1)
+    RemoveAllLayer()
+    var status = $("#data_select_operator").val()
+    alert(status)
+
+    if (status == 'None')
+    {
+        alert(1)
+    }
+    else if (status == 'Point')
+    {                               
+        alert(2)
+    }
+    else if (status == 'LineString')
+    {
+        alert(3)
+    }
+    else if (status == 'Square')
+    {
+        alert(4)       
+    }
+    else if (status == 'Polygon')
+    {
+        alert(5)
+    }
+    else if (status == 'Circle')
+    {
+        alert(6)        
+    }
+    else
+    {
+        alert("1") 
+    }
+
+    select_condition = []
+
+    // ajax 提交
+
+    /*
+        $.ajax({
+        type: 'POST',
+        data: JSON.stringify({
+            type: 'data_select',
+            select_type:status,
+            select_condition:select_condition
+        }),
+        heads : {
+            'content-type' : 'application/json;charset=UTF-8'
+        },
+        dataType: 'json',
+        success: function (response) {
+                # 返回操作
+            },
+        error: function(request, textStatus, errorThrown) {
+            alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
+            }
+        });
+
+
+
+
+    */
+
+}
+
+function DataSelectModalClose()
+{
+    $("#data_select_control_label").attr("class", "nav-link")
+    $("#data_select_control_card").css("display", "none")
 }
 
 // Condition Select
@@ -312,6 +388,42 @@ function heat_map()
 
 }
 
+function predict_interpolation_map()
+{
+    if($("#predict_interpolation_map").prop("checked"))
+    {
+        $.ajax({
+        type: 'POST',
+        data: JSON.stringify({
+            type: 'predict_interpolation_map',
+        }),
+        heads : {
+            'content-type' : 'application/json;charset=UTF-8'
+        },
+        dataType: 'json',
+        success: function(response) {
+            var vectorSource = new ol.source.Vector({
+                features: (new ol.format.GeoJSON()).readFeatures(response,{
+                    dataProjection : 'EPSG:4326',featureProjection : 'EPSG:3857'})});
+                // Heatmap热力图
+            var HeatMap = new ol.layer.Heatmap({
+                source: vectorSource,
+                blur: 10,
+                radius: 3,
+            });
+            map.addLayer(HeatMap);
+            },
+        error: function(request, textStatus, errorThrown) {
+            alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
+            }
+        });
+    }
+    else
+    {
+        map.removeLayer(vector)
+    }
+}
+
 function other_map()
 {
     RemoveAllLayer()
@@ -372,4 +484,66 @@ function DataPredict()
         $("#data_predict_control_label").attr("class","nav-link")
     }
 }
+
+
+function addInteraction() {
+
+         var typeSelect = document.getElementById('type');       //绘制类型选择对象
+
+      //ol.Interaction.Draw类的对象
+      var draw;
+
+      //实例化一个矢量图层Vector作为绘制层
+      var source = new ol.source.Vector();
+      var vectorLayer = new ol.layer.Vector({
+          source: source,
+          style: new ol.style.Style({
+              fill: new ol.style.Fill({               //填充样式
+                  color: 'rgba(255, 255, 255, 0.2'
+              }),
+              stroke: new ol.style.Stroke({           //线样式
+                  color: '#00c033',
+                  width: 2
+              }),
+              image: new ol.style.Circle({            //点样式
+                  radius: 7, 
+                  fill: new ol.style.Fill({
+                      color: '#00c033'
+                  })
+              })
+          })
+      });
+      //将绘制层添加到地图容器中
+      map.addLayer(vectorLayer);           
+
+      //用户更改绘制类型触发的事件
+     
+      typeSelect.onchange = function(e){
+          map.removeInteraction(draw);        //移除绘制图形控件
+          addInteraction();                   //添加绘制图形控件
+      }; 
+
+          var typeValue = typeSelect.value;       //绘制类型
+          
+          if(typeValue !== 'None'){
+              var geometryFunction, maxPoints;
+              if(typeValue === 'Square'){                 //正方形
+                  typeValue = 'Circle';               //设置绘制类型为Circle
+                  //设置几何信息变更函数，即创建正方形
+                  geometryFunction = ol.interaction.Draw.createRegularPolygon(4);
+              }
+              console.log(typeValue);
+              //实例化图形绘制控件对象并添加到地图容器中
+              draw = new ol.interaction.Draw({
+                  source: source,
+                  type: typeValue,                                //几何图形类型
+                  geometryFunction: geometryFunction,             //几何信息变更时的回调函数
+                  maxPoints: maxPoints                            //最大点数
+              });
+              map.addInteraction(draw);
+          }else{
+              //清空绘制的图形
+              source.clear();
+          }
+      }
 
