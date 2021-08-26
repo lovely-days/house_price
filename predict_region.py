@@ -9,7 +9,6 @@ import numpy as np
 
 import src.static.py.helper.co_system as coordinate_helper
 
-all_price = []
 infrastructure = defaultdict(list)
 mean = []
 std = []
@@ -41,6 +40,7 @@ for longitude in range(117052, 117342, 3):
         data_coordinate = coordinate_helper.gcj02_to_wgs84(float(longitude) / 1000, float(latitude) / 1000)
 
         print(data_coordinate)
+        print([longitude,latitude])
         factors = []
         for key in infrastructure:
             count = 0
@@ -76,7 +76,6 @@ for longitude in range(117052, 117342, 3):
         predict_price = model.predict(dataset[:])
         print(predict_price)
 
-        all_price.append([data_coordinate[0], data_coordinate[1], predict_price[0][0]])
-
-all_price = np.array(all_price)
-np.savetxt('./data.txt', all_price, fmt='%.18f', delimiter=',')
+        file_data = open('./data.txt', 'a', encoding='utf-8')
+        file_data.writelines(str(data_coordinate[0]) + ',' + str(data_coordinate[1]) + ',' + str(predict_price[0][0]) + '\n')
+        file_data.close()

@@ -166,6 +166,7 @@ function OpenDataSelectCard()
 
 function DataSelectRequest()
 {
+
     var status = $("#data_select_operator").val()
 
     if (status == 'Clear')
@@ -173,25 +174,82 @@ function DataSelectRequest()
         RemoveAllLayer()
         return 0
     }
-    else if (status == 'Rectangle')
+
+     if (status == 'Rectangle')
     {
-        alert(4)       
+         var typeSelect = document.getElementById('type');       //绘制类型选择对象
+
+      //ol.Interaction.Draw类的对象
+      var draw;
+
+      //实例化一个矢量图层Vector作为绘制层
+      var source = new ol.source.Vector();
+      var vectorLayer = new ol.layer.Vector({
+          source: source,
+          style: new ol.style.Style({
+              fill: new ol.style.Fill({               //填充样式
+                  color: 'rgba(255, 255, 255, 0.2'
+              }),
+              stroke: new ol.style.Stroke({           //线样式
+                  color: '#00c033',
+                  width: 2
+              }),
+              image: new ol.style.Circle({            //点样式
+                  radius: 7, 
+                  fill: new ol.style.Fill({
+                      color: '#00c033'
+                  })
+              })
+          })
+      });
+      //将绘制层添加到地图容器中
+      map.addLayer(vectorLayer);           
+
+      //用户更改绘制类型触发的事件
+     
+      typeSelect.onchange = function(e){
+          map.removeInteraction(draw);        //移除绘制图形控件
+          addInteraction();                   //添加绘制图形控件
+      }; 
+
+          var typeValue = 'Circle';       //绘制类型
+          
+          if(typeValue !== 'None'){
+              var geometryFunction, maxPoints;
+                       //设置绘制类型为Circle
+                  //设置几何信息变更函数，即创建正方形
+                  geometryFunction = ol.interaction.Draw.createRegularPolygon(4);
+              
+              console.log(typeValue);
+              //实例化图形绘制控件对象并添加到地图容器中
+              draw = new ol.interaction.Draw({
+                  source: source,
+                  type: typeValue,                                //几何图形类型
+                  geometryFunction: geometryFunction,             //几何信息变更时的回调函数
+                  maxPoints: maxPoints                            //最大点数
+              });
+              map.addInteraction(draw);
+          }else{
+              //清空绘制的图形
+              source.clear();
+          }
     }
     else if (status == 'Circle')
     {
-        alert(6)        
+        typeValue = 'Circle';    
     }
     else if (status == 'Polygon')
     {
-        alert(5)
     }
     else
     {
         alert("错误输入，请重试!") 
     }
 
+
+
     // Circle : [longitude,Latitude,radius]
-    // Rectangle : [longitude,Latitude(left-top),longitude,Latitude(right-bottom)]
+    // Rectangle : [[longitude,Latitude],[longitude,Latitude]]
     // polygon : [[longitude,longitude],...,[-1,-1]]
 
     select_condition = []
