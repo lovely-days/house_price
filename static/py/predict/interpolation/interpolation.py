@@ -1,5 +1,8 @@
 # encoding:utf-8
 
+# 返会区域内一定步长点网预测房价数据
+# 用于预测房价插值使用
+
 import re
 import math
 from collections import defaultdict
@@ -12,7 +15,7 @@ import src.static.py.helper.co_system as coordinate_helper
 infrastructure = defaultdict(list)
 mean = []
 std = []
-file = open("./static/py/predict/data/infra_factor.txt", 'r', encoding='utf-8')
+file = open("../data/infra_factor.txt", 'r', encoding='utf-8')
 
 line = file.readline()
 while line:
@@ -35,8 +38,9 @@ file.close()
 # 117.052237,34.385425
 # 117.342002,34.151637
 #  经度 ，纬度
-for longitude in range(117085, 117342, 3):
-    for latitude in range(34334, 34385, 3):
+
+for longitude in range(117288, 117342, 4):
+    for latitude in range(34151, 34385, 4):
         data_coordinate = coordinate_helper.gcj02_to_wgs84(float(longitude) / 1000, float(latitude) / 1000)
 
         print(data_coordinate)
@@ -76,6 +80,6 @@ for longitude in range(117085, 117342, 3):
         predict_price = model.predict(dataset[:])
         print(predict_price)
 
-        file_data = open('./data.txt', 'a', encoding='utf-8')
+        file_data = open('../data/price_interpolation.txt', 'a', encoding='utf-8')
         file_data.writelines(str(data_coordinate[0]) + ',' + str(data_coordinate[1]) + ',' + str(predict_price[0][0]) + '\n')
         file_data.close()

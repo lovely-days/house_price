@@ -2,17 +2,17 @@
 
 import re
 
+
 # 插值数据请求
 # input: null
 # output: 区域预测点网对应 json 数据
-
 
 def interpolation():
     longitude = []
     latitude = []
     price = []
 
-    file = open("./static/py/predict/data/price_interpolation.txt", 'r', encoding='utf-8')
+    file = open("../predict/data/price_interpolation.txt", 'r', encoding='utf-8')
 
     line = file.readline()
     while line:
@@ -24,5 +24,4 @@ def interpolation():
 
         return_json = {"longitude": longitude, "latitude": latitude, "price": price}
         return return_json
-
 

@@ -143,6 +143,7 @@ function CheckOrCancelAll()
 
 function OpenDataSelectCard()
 {
+    RemoveAllLayer()
     
     $("#data_show_control_label").attr("class","nav-link")
     $("#condition_select_control_label").attr("class","nav-link")
@@ -166,97 +167,159 @@ function OpenDataSelectCard()
 
 function DataSelectRequest()
 {
-
+    $("#data_select_control_card").css("display","none")
     var status = $("#data_select_operator").val()
 
-    if (status == 'Clear')
-    {
-        RemoveAllLayer()
-        return 0
-    }
+    //实例化一个矢量图层Vector作为绘制层
+    var source = new ol.source.Vector()
+    var drawlayer = new ol.layer.Vector({
+        source: source,
+        style: new ol.style.Style({
+            fill: new ol.style.Fill({               //填充样式
+                color: 'rgba(255, 255, 255, 0.2'
+            }),
+            stroke: new ol.style.Stroke({           //线样式
+                color: '#00c033',
+                width: 2
+            }),
+            image: new ol.style.Circle({            //点样式
+                radius: 7, 
+                fill: new ol.style.Fill({
+                    color: '#00c033'
+                })
+            })
+        })
+    })
 
-     if (status == 'Rectangle')
-    {
-         var typeSelect = document.getElementById('type');       //绘制类型选择对象
+    switch (status) {
+        case 'Clear':
+            RemoveAllLayer()
 
-      //ol.Interaction.Draw类的对象
-      var draw;
+            $("#data_select_operator").attr("value", "Rectangle")
+            $("#data_select_control_label").attr("class","nav-link")
+            return 0
+            
+        case 'Rectangle':
+            drawtype = 'Circle';
+            geometryFunction = ol.interaction.Draw.createBox();
 
-      //实例化一个矢量图层Vector作为绘制层
-      var source = new ol.source.Vector();
-      var vectorLayer = new ol.layer.Vector({
-          source: source,
-          style: new ol.style.Style({
-              fill: new ol.style.Fill({               //填充样式
-                  color: 'rgba(255, 255, 255, 0.2'
-              }),
-              stroke: new ol.style.Stroke({           //线样式
-                  color: '#00c033',
-                  width: 2
-              }),
-              image: new ol.style.Circle({            //点样式
-                  radius: 7, 
-                  fill: new ol.style.Fill({
-                      color: '#00c033'
-                  })
-              })
-          })
-      });
-      //将绘制层添加到地图容器中
-      map.addLayer(vectorLayer);           
+            draw = new ol.interaction.Draw({
+                source: source,
+                type: drawtype,
+                geometryFunction: geometryFunction
+            });
+            break;
+            
+        case 'Circle':
+            drawtype = 'Circle'
 
-      //用户更改绘制类型触发的事件
-     
-      typeSelect.onchange = function(e){
-          map.removeInteraction(draw);        //移除绘制图形控件
-          addInteraction();                   //添加绘制图形控件
-      }; 
+            draw = new ol.interaction.Draw({
+                source: source,
+                type: drawtype,
+            });
+            break;
+            
+        case 'Polygon':
+            drawtype = 'Polygon'
 
-          var typeValue = 'Circle';       //绘制类型
-          
-          if(typeValue !== 'None'){
-              var geometryFunction, maxPoints;
-                       //设置绘制类型为Circle
-                  //设置几何信息变更函数，即创建正方形
-                  geometryFunction = ol.interaction.Draw.createRegularPolygon(4);
-              
-              console.log(typeValue);
-              //实例化图形绘制控件对象并添加到地图容器中
-              draw = new ol.interaction.Draw({
-                  source: source,
-                  type: typeValue,                                //几何图形类型
-                  geometryFunction: geometryFunction,             //几何信息变更时的回调函数
-                  maxPoints: maxPoints                            //最大点数
-              });
-              map.addInteraction(draw);
-          }else{
-              //清空绘制的图形
-              source.clear();
-          }
-    }
-    else if (status == 'Circle')
-    {
-        typeValue = 'Circle';    
-    }
-    else if (status == 'Polygon')
-    {
-    }
-    else
-    {
-        alert("错误输入，请重试!") 
-    }
+            draw = new ol.interaction.Draw({
+                source: source,
+                type: drawtype,
+            });
+            break;
+            
+        default:
+            alert("错误输入，请重试!")
+
+        }
+
+    map.addInteraction(draw);
+
+    // 绘制完成
+    draw.on('drawend', function (e) {
+
+        // 显示绘制图形
+        map.addLayer(drawlayer)
+
+        // 清空画笔
+        if (draw) {
+            map.removeInteraction(draw)
+            draw=null          
+        }
+
+        // 获取关键信息并封装
+
+        //封装结构
+
+        // Circle : [[longitude,Latitude],[longitude,Latitude],radius] ,圆心坐标, 边界点坐标, 半径, 解决测地线精度不统一问题
+        // Rectangle : [[longitude,Latitude],[longitude,Latitude]]
+        // polygon : [[longitude,longitude],...,[-1,-1]] ,最后点与首点坐标相同
+
+        select_condition = []
+
+        // 图形关键信息获取
+
+        geometry = e.feature.getGeometry()
+
+        switch (status) {
+            case 'Circle':
+                const center = ol.proj.transform(geometry.getCenter(), 'EPSG:3857', 'EPSG:4326')
+                const border = ol.proj.transform(geometry.getLastCoordinate(), 'EPSG:3857', 'EPSG:4326')
+                const radius = geometry.getRadius()
+
+                // 利用地图单位求得 km 制下圆半径
+                let metersPerUnit = map.getView().getProjection().getMetersPerUnit()
+                const km_radius = radius / (metersPerUnit * 1000)
+
+                // alert(center[0])
+                // alert(radius)
+                // alert(km_radius)
+
+                select_condition[0] = [center[0],center[1]]
+                select_condition[1] = [border[0],border[1]]
+                select_condition[2] = [km_radius]
+
+                break;
+            
+            case 'Rectangle':
+                const rec_coordinates = geometry.getCoordinates()
+
+                const l_t_coordinate = ol.proj.transform(rec_coordinates[0][0], 'EPSG:3857', 'EPSG:4326')
+                const r_b_coordinate = ol.proj.transform(rec_coordinates[0][2], 'EPSG:3857', 'EPSG:4326')
+
+                select_condition[0] = [l_t_coordinate[0], l_t_coordinate[1]]
+                select_condition[1] = [r_b_coordinate[0],r_b_coordinate[1]]
+                
+                break;
+            
+            case 'Polygon':
+                const pol_coordinates = geometry.getCoordinates()
+                console.log(pol_coordinates)
+
+                const first_coordinate = ol.proj.transform(pol_coordinates[0][0], 'EPSG:3857', 'EPSG:4326')
+                // alert(first_coordinate)
+
+                for (item of pol_coordinates[0])
+                {
+                    count = 0
+                    const every_coordinate = ol.proj.transform(item, 'EPSG:3857', 'EPSG:4326')
+
+                    select_condition.push([every_coordinate[0], every_coordinate[1]])
+
+                }
+                // 终止条件 [-1, -1]
+                select_condition.push([-1, -1])
+
+                break;
+            
+            default:
+                alert("错误输入，请重试!")
+  
+        }
 
 
+        // ajax 提交
 
-    // Circle : [longitude,Latitude,radius]
-    // Rectangle : [[longitude,Latitude],[longitude,Latitude]]
-    // polygon : [[longitude,longitude],...,[-1,-1]]
-
-    select_condition = []
-
-    // ajax 提交
-
-    /*
         $.ajax({
         type: 'POST',
         data: JSON.stringify({
@@ -268,8 +331,36 @@ function DataSelectRequest()
             'content-type' : 'application/json;charset=UTF-8'
         },
         dataType: 'json',
-        success: function (response) {
-                # 返回操作
+            success: function (response) {
+                alert(JSON.stringify(response))
+                if (JSON.stringify(response["features"]) == [])
+                    alert("未找到该区域房源")
+            
+                var vectorSource = new ol.source.Vector({
+                    features: (new ol.format.GeoJSON()).readFeatures(response,{
+                        dataProjection: 'EPSG:4326', featureProjection: 'EPSG:3857'
+                    })
+                });
+
+                var DataSelect = new ol.layer.Vector({
+	                source: vectorSource,
+	                style:new ol.style.Style({
+                        image: new ol.style.Circle({
+                            radius: 5,//半径
+                            fill: new ol.style.Fill({//填充样式
+                                color: '#ff6688',
+                            }),
+                            stroke: new ol.style.Stroke({//边界样式
+                                color: '#555555',
+                                width: 1
+                            })
+                        }),
+                    })
+                });
+
+                $("#data_select_control_label").attr("class", "nav-link")
+                map.addLayer(DataSelect);
+                
             },
         error: function(request, textStatus, errorThrown) {
             alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
@@ -277,9 +368,7 @@ function DataSelectRequest()
         });
 
 
-
-
-    */
+    })
 
 }
 
@@ -334,7 +423,7 @@ function ConditionSelectRequest() {
         },
         dataType: 'json',
         success: function (response) {
-            alert(JSON.stringify(response))
+            //alert(JSON.stringify(response))
             if (JSON.stringify(response["features"]) == [])
                 alert("未找到该条件下房源")
             
