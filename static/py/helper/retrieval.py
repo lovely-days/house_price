@@ -3,6 +3,7 @@
 import src.static.py.helper.sql as db_helper
 import src.static.py.helper.co_system as coordinate_helper
 
+# 手工编码 ......
 sql_dic = {'region': ['', '\'.*云龙区.*\'', '\'.*鼓楼区.*\'', '\'.*铜山区.*\'', '\'.*泉山区.*\'', '\'.*金山桥开发区.*\'', '\'.*新城区.*\'', '\'.*贾汪区.*\''],
            'roomtype': ['', '\'.*[1]室.*\'', '\'.*[1-2]室.*\'', '\'.*[1-3]室.*\'', '\'.*[1-4]室.*\'', '\'.*[1-5]室.*\''],
            'area': ['', '<50', 'between 50 and 80', 'between 80 and 120', 'between 120 and 150', '>150'],
@@ -18,10 +19,13 @@ def get_sql(dic={}):
     sql = "select * from houses "
 
     # 当区域全选时存在 bug, 懒得改了，直接删了全选选项
+    # 8.27 bug 已修，重新添加区域全选选项
 
     # 区域
     if int(dic['region']) != 0:
         sql = sql + "where Region regexp " + sql_dic['region'][int(dic['region'])] + " "
+    else:
+        sql = sql + "where Region regexp " + '\'.*\'' + " "
 
     # 室数目
     if int(dic['roomtype']) != 0:

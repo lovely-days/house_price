@@ -1,5 +1,4 @@
 # encoding:utf-8
-import numpy as np
 from geopy.distance import geodesic
 
 import src.static.py.helper.sql as db_helper

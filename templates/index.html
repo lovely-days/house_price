@@ -41,8 +41,8 @@
             <div class="container col-md-2">
                 <ul class="nav nav-pills flex-column" id="tool_box">
                     <li class="nav-item" >
-                        <a class="nav-link active" href="#" id="data_show_control_label" onclick="OpenDataShowCard()">数据展示</a>
-                        <div id="data_show_control_card" class='card bg-light mb-3' style="margin-top:0.5em;" ondblclick="DataShow()">
+                        <a class="nav-link" href="#" id="data_show_control_label" onclick="OpenDataShowCard()">数据展示</a>
+                        <div id="data_show_control_card" class='card bg-light mb-3' style="margin-top:0.5em;display: none;" ondblclick="DataShow()" >
                             <div class="form-check" style="margin-left:1em;margin-top: 1em;margin-bottom: 1em;">
                                 <div>
                                     <input class="form-check-input" type="checkbox" id="house_check">
@@ -86,12 +86,11 @@
                         </div>
                     </li>
                      <li class="nav-item" >
-                       <a class="nav-link" href="#" id="data_select_control_label"  onclick="OpenDataSelectCard()">房价查询</a>
+                       <a class="nav-link" href="#" id="data_select_control_label"  onclick="OpenDataSelectCard()">范围查询</a>
                     </li>                                
                     
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="condition_select_control_label"  onclick="OpenConditionSelectCard()">条件检索</a>
-                        
                     </li>
 
                     <li class="nav-item">
@@ -108,7 +107,7 @@
                                     <label class="form-check-label" for="heat_map">等值分析</label>
                                 </div>
 
-                                <div  style="display: none;>
+                                <div  style="display: none;">
                                     <input type="radio" class="form-check-input" name="optionsRadios" id="other_map" onclick="other_map()"">
                                     <label class="form-check-label" for="heat_map">其他分析</label>
                                 </div>
@@ -126,7 +125,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" id="data_predict_control_label" onclick="DataPredict()">单点房价预测</a>
+                        <a class="nav-link" href="#" id="data_predict_control_label" onclick="DataPredict()">房价预测</a>
                     </li>
                 </ul>
             </div>
@@ -154,6 +153,7 @@
                                     <option value="5">金山桥开发区</option>
                                     <option value="6">新城区</option>
                                     <option value="7">贾汪区</option>
+                                    <option value="0">全选</option>
                                 </select>
                             </div>
                             <div class="form-group" style="position:inherit;left: 10px ; width: 200px" >
@@ -283,6 +283,28 @@
         </div>
 
         <!--属性显示-->
+        <div class="modal" id="feature_show" style="display:none">
+                <div class="modal-content" style="position:absolute;right:30px;top: 90px; width:380px;height: 580px;" id="feature_show_content" >
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id = "feature_close" onclick="featureSelectClose()">
+                        <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div style="margin-left: 40px;margin-top: 10px;margin-right: 40px;">
+                        <div class="row">
+                            <table class="table table-hover">
+                                <thead align="center" id="feature_column">
+                                </thead>
+                            </table>
+
+                            
+                        </div>
+
+                    </div>
+
+                    
+            </div>
+        </div>
         
 
     </div>

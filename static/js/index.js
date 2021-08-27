@@ -1,43 +1,25 @@
-//const layers = require("./layers");
 
-     var map = new ol.Map({
-        target: 'map',                          // 关联到对应的div容器
-        layers: [
-            new ol.layer.Tile({                 // 瓦片图层
-                source: new ol.source.OSM()     // OpenStreetMap数据源
-            }),
-        ],
-        view: new ol.View({                     // 地图视图
-            projection: 'EPSG:3857',
-            center: ol.proj.fromLonLat([117.200931, 34.219325]),
-            zoom: 14,
-        })
+// map
+
+var map = new ol.Map({
+    target: 'map',                          // 关联到对应的div容器
+    layers: [
+        new ol.layer.Tile({                 // 瓦片图层
+            source: new ol.source.OSM()     // OpenStreetMap数据源
+        }),
+    ],
+    view: new ol.View({                     // 地图视图
+        projection: 'EPSG:3857',
+        center: ol.proj.fromLonLat([117.200931, 34.219325]),
+        zoom: 14,
+    })
 });
 
-    map.addControl(new ol.control.FullScreen())
-    map.addControl(new ol.control.ScaleLine())
-    map.addControl(new ol.control.ZoomSlider())
+map.addControl(new ol.control.FullScreen())
+map.addControl(new ol.control.ScaleLine())
+map.addControl(new ol.control.ZoomSlider())
     
- 
-
-
-    /*
-    map.on('singleclick', function(e){
-		alert(e.coordinate);
-		alert(ol.proj.transform(e.coordinate, 'EPSG:3857', 'EPSG:4326'));
-
-        // 通过getEventCoordinate方法获取地理位置，再转换为wgs84坐标，并弹出对话框显示
-		alert(map.getEventCoordinate(e.originalEvent));
-        alert(ol.proj.transform(map.getEventCoordinate(e.originalEvent), 'EPSG:3857', 'EPSG:4326'));
-
-        var lonlat = map.getCoordinateFromPixel(e.pixel);
-		alert(lonlat);
-        alert(ol.proj.transform(lonlat,"EPSG:3857", "EPSG:4326")); //由3857坐标系转为4326
-　　　　
-    })
-
-    $("singleclick").off("click")
-    */
+// Remov Layers
 
 function RemoveAllLayer()
 {
@@ -150,7 +132,8 @@ function OpenDataSelectCard()
     $("#data_analysis_control_label").attr("class","nav-link")
     $("#data_predict_control_label").attr("class","nav-link")
 
-    $("#data_analysis_control_card").css("display","none")
+    $("#data_analysis_control_card").css("display", "none")
+    $("#data_show_control_card").css("display","none")
 
     if ($("#data_select_control_label").attr("class") == "nav-link")
     {
@@ -332,7 +315,7 @@ function DataSelectRequest()
         },
         dataType: 'json',
             success: function (response) {
-                alert(JSON.stringify(response))
+                // alert(JSON.stringify(response))
                 if (JSON.stringify(response["features"]) == [])
                     alert("未找到该区域房源")
             
@@ -360,6 +343,8 @@ function DataSelectRequest()
 
                 $("#data_select_control_label").attr("class", "nav-link")
                 map.addLayer(DataSelect);
+
+                Select_Feature()
                 
             },
         error: function(request, textStatus, errorThrown) {
@@ -369,6 +354,8 @@ function DataSelectRequest()
 
 
     })
+
+
 
 }
 
@@ -452,6 +439,9 @@ function ConditionSelectRequest() {
             $("#condition_select_control_label").attr("class", "nav-link")
             $("#condition_select_control_card").css("display", "none")
             map.addLayer(ConditionSelect);
+
+            Select_Feature()
+
             },
         error: function(request, textStatus, errorThrown) {
             alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
@@ -520,7 +510,7 @@ function heat_map()
             });
 
             // 清空原图层
-                RemoveAllLayer()
+            RemoveAllLayer()
             // 热力图图层添加
             map.addLayer(HeatMap);
             },
@@ -682,3 +672,89 @@ function DataPredict()
     }
 }
 
+// Feature select
+
+function Select_Feature()
+{
+    if (selectClick)
+    {
+        map.removeInteraction(selectClick)
+        selectClick = null
+    }
+
+    // 选择控件创建与添加
+    var selectClick = new ol.interaction.Select();
+    map.addInteraction(selectClick);
+    
+    /*
+    // 逻辑太复杂了，boom 。。
+    // 绑定点击事件获取绝对坐标，设置模态框位置
+    $('body').on('click', function (ex) {
+        if (ex == null) {
+            ex = window.event;
+        }
+
+        right_val = (parseInt(ex.clientX) - 100).toString() + 'px'
+        top_val = (parseInt(ex.clientY) - 100).toString() + 'px'
+        // alert(right_val)
+        // alert(top_val)
+
+        // 属性展示模态框显示
+        $("#feature_show_content").css("right", right_val)
+        $("#feature_show_content").css("top", top_val)
+        $('body').off('click')
+    })
+    */
+
+    // 地图选择要素
+    selectClick.on('select', function (e) {
+        
+        var features=e.target.getFeatures().getArray();
+        if (features.length > 0) {
+            var property = features[0].getProperties();
+
+            // 添加属性表项
+            for (key in property)
+            {
+                value = property[key]
+
+                if (key == 'geometry' || key == 'Coordinate' || key == 'House ID')
+                    continue
+
+                if (key == 'Price')
+                    value = value + '万元'
+                
+                if (key == 'Unit Price')
+                    value = value + '元'
+                
+                /*
+                    <tr>
+                        <th scope="col">属性名</th>
+                        <th scope="col">属性值</th>
+                    </tr>
+                */
+                
+                line = '<tr> <th scope="col">' + key +'</th> <th scope="col"><th>' + value + '</th> </tr>' 
+                // console.log(line)
+
+                //alert(line)
+
+                $('#feature_column').append(line)
+            }
+
+            // 显示修改后模态框
+            $("#feature_show").css("display", "block")
+
+            selectClick.off()
+            
+        }   
+    })
+
+}
+
+function featureSelectClose()
+{
+    //  关闭模态框
+    $("#feature_show").css("display", "none")
+    $("#feature_column").empty()
+}

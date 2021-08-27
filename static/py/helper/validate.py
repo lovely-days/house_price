@@ -1,3 +1,4 @@
+# encoding:utf-8
 def validate(name="", password=""):
     if len(name) == 0:
         return "用户名不能为空值！！"
