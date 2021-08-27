@@ -154,8 +154,8 @@ function OpenDataSelectCard()
 
     if ($("#data_select_control_label").attr("class") == "nav-link")
     {
-        $("#data_select_control_label").attr("class","nav-link active")
-        $("#data_select_control_card").css("display","block")  
+        $("#data_select_control_label").attr("class", "nav-link active")
+        setTimeout(()=>{$("#data_select_control_card").css("display", "block")} ,500)
     }
     else
     {
@@ -170,7 +170,7 @@ function DataSelectRequest()
     $("#data_select_control_card").css("display","none")
     var status = $("#data_select_operator").val()
 
-    //实例化一个矢量图层Vector作为绘制层
+    //实例化一个矢量图层 Vector 作为绘制层
     var source = new ol.source.Vector()
     var drawlayer = new ol.layer.Vector({
         source: source,
@@ -499,22 +499,29 @@ function heat_map()
         $.ajax({
         type: 'POST',
         data: JSON.stringify({
-            type: 'heat_map',
+            type: 'data_analysis',
+            analysis_type: 'heat_map',
         }),
         heads : {
             'content-type' : 'application/json;charset=UTF-8'
         },
         dataType: 'json',
-        success: function(response) {
+            success: function (response) {
+            
             var vectorSource = new ol.source.Vector({
                 features: (new ol.format.GeoJSON()).readFeatures(response,{
                     dataProjection : 'EPSG:4326',featureProjection : 'EPSG:3857'})});
-                // Heatmap热力图
+            
+            // Heatmap 热力图绘制
             var HeatMap = new ol.layer.Heatmap({
                 source: vectorSource,
                 blur: 10,
                 radius: 3,
             });
+
+            // 清空原图层
+                RemoveAllLayer()
+            // 热力图图层添加
             map.addLayer(HeatMap);
             },
         error: function(request, textStatus, errorThrown) {
@@ -536,45 +543,72 @@ function predict_interpolation_map()
         $.ajax({
         type: 'POST',
         data: JSON.stringify({
-            type: 'predict_interpolation_map',
+            type: 'data_analysis',
+            analysis_type: 'predict_interpolation_map',
         }),
         heads : {
             'content-type' : 'application/json;charset=UTF-8'
         },
         dataType: 'json',
-        success: function(response) {
+        success: function (response) {
+            
+            // 预测房价点坐标数据
             longitude = response["longitude"]
             latitude = response["latitude"]
             price = response["price"]
+            
+            // 克里金插值参数设置
+            let params={
+                mapCenter:[117,34],
+                maxValue:100,
+                krigingModel:'exponential', // 'exponential':指数  'gaussian':高斯,'spherical':球体
+                krigingSigma2:0,
+                krigingAlpha:100,
+                canvasAlpha:0.7, //canvas图层透明度
+                colors:[
+                    "#006837",
+                    "#1a9850",
+                    "#66bd63",
+                    "#a6d96a",
+                    "#d9ef8b",
+                    "#ffffbf",
+                    "#fee08b",
+                    "#fdae61",
+                    "#f46d43",
+                    "#d73027",
+                    "#a50026"
+                ],
+            };
 
-            if (values.length>3){
-                let variogram=kriging.train(values,lngs,lats,params.krigingModel,params.krigingSigma2,params.krigingAlpha);
-                let polygons=[[[116,34],[116,35],[117,35],[117,34]]];
-                let grid=kriging.grid(polygons,variogram,(117-116)/200);
-                //创建新图层
-                canvasLayer=new ol.layer.Image({
-                    source: new ol.source.ImageCanvas({
-                        canvasFunction:(extent, resolution, pixelRatio, size, projection) =>{
-                            let canvas = document.createElement('canvas');
-                                canvas.width = size[0];
-                                canvas.height = size[1];
-                                canvas.style.display='block';
-                                //设置canvas透明度
-                                canvas.getContext('2d').globalAlpha=params.canvasAlpha;                          
-                                //使用分层设色渲染
-                            kriging.plot(canvas,grid,[extent[0],extent[2]],[extent[1],extent[3]],params.colors);
-                                return canvas;
-                        },
-                    projection: 'EPSG:4326'
-                    })
+            // 克里金插值训练
+            let variogram=kriging.train(price,longitude,latitude,params.krigingModel,params.krigingSigma2,params.krigingAlpha);
+            let polygons=[[[117,34.1],[117,34.4],[117.4,34.4],[117.4,34.1]]];
+            let grid = kriging.grid(polygons, variogram, (117.4 - 117) / 800);
+                
+            // 创建新图层
+            canvasLayer=new ol.layer.Image({
+                source: new ol.source.ImageCanvas({
+                    canvasFunction:(extent, resolution, pixelRatio, size, projection) =>{
+                        let canvas = document.createElement('canvas');
+                            canvas.width = size[0];
+                            canvas.height = size[1];
+                            canvas.style.display='block';
+                            //设置canvas透明度
+                            canvas.getContext('2d').globalAlpha=params.canvasAlpha;                          
+                            //使用分层设色渲染
+                        kriging.plot(canvas,grid,[extent[0],extent[2]],[extent[1],extent[3]],params.colors);
+                            return canvas;
+                    },
+                projection: 'EPSG:4326'
                 })
-                //向map添加图层
-                map.addLayer(canvasLayer);
-            }
-            else {
-                alert("有效样点个数不足，无法插值");
-            }
-            drawKriging();            
+                    
+            })
+
+            // 清空原图层
+            RemoveAllLayer()
+            // 向map添加图层
+            map.addLayer(canvasLayer);
+         
         },
         error: function(request, textStatus, errorThrown) {
             alert("传送错误，请重试！！ 错误信息为: " + errorThrown )
@@ -583,7 +617,7 @@ function predict_interpolation_map()
     }
     else
     {
-        map.removeLayer(vector)
+        RemoveAllLayer()
     }
 }
 
@@ -647,66 +681,4 @@ function DataPredict()
         $("#data_predict_control_label").attr("class","nav-link")
     }
 }
-
-
-function addInteraction() {
-
-         var typeSelect = document.getElementById('type');       //绘制类型选择对象
-
-      //ol.Interaction.Draw类的对象
-      var draw;
-
-      //实例化一个矢量图层Vector作为绘制层
-      var source = new ol.source.Vector();
-      var vectorLayer = new ol.layer.Vector({
-          source: source,
-          style: new ol.style.Style({
-              fill: new ol.style.Fill({               //填充样式
-                  color: 'rgba(255, 255, 255, 0.2'
-              }),
-              stroke: new ol.style.Stroke({           //线样式
-                  color: '#00c033',
-                  width: 2
-              }),
-              image: new ol.style.Circle({            //点样式
-                  radius: 7, 
-                  fill: new ol.style.Fill({
-                      color: '#00c033'
-                  })
-              })
-          })
-      });
-      //将绘制层添加到地图容器中
-      map.addLayer(vectorLayer);           
-
-      //用户更改绘制类型触发的事件
-     
-      typeSelect.onchange = function(e){
-          map.removeInteraction(draw);        //移除绘制图形控件
-          addInteraction();                   //添加绘制图形控件
-      }; 
-
-          var typeValue = typeSelect.value;       //绘制类型
-          
-          if(typeValue !== 'None'){
-              var geometryFunction, maxPoints;
-              if(typeValue === 'Square'){                 //正方形
-                  typeValue = 'Circle';               //设置绘制类型为Circle
-                  //设置几何信息变更函数，即创建正方形
-                  geometryFunction = ol.interaction.Draw.createRegularPolygon(4);
-              }
-              console.log(typeValue);
-              //实例化图形绘制控件对象并添加到地图容器中
-              draw = new ol.interaction.Draw({
-                  source: source,
-                  type: typeValue,                                //几何图形类型
-                  geometryFunction: geometryFunction,             //几何信息变更时的回调函数
-                  maxPoints: maxPoints                            //最大点数
-              });
-              map.addInteraction(draw);
-          }else{
-              //清空绘制的图形
-              source.clear();
-          }
-      }
 

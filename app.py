@@ -6,7 +6,7 @@ import src.static.py.helper.sql as db_helper
 import src.static.py.helper.analysis as analysis_helper
 import src.static.py.helper.graphic as graphic_helper
 import src.static.py.helper.predict as predict_helper
-import src.static.py.helper.geojson as geojson_helper
+import src.static.py.helper.retrieval as retrieval_helper
 import src.static.py.helper.validate as validate_helper
 import src.static.py.helper.co_system as coordinate_helper
 from src.static.py.helper import config
@@ -103,29 +103,6 @@ def index():
         print(work_type)
 
         # 操作类型判断
-        if work_type == "heat_map":
-            sql = "select HouseID,Longitude,Latitude from houses"
-            results = db_helper.select_all(sql)
-            coordinates = []
-
-            for result in results:
-                coordinate = coordinate_helper.bd09_to_wgs84(float(result[1]), float(result[2]))
-                coordinates.append({"type": "Feature", "properties": {},
-                                    "geometry": {"type": "Point", "coordinates": coordinate}})
-
-            json_return = {"type": "FeatureCollection", "features": coordinates}
-
-            return jsonify(json_return)
-
-        if work_type == "predict_interpolation_map":
-            return_json = analysis_helper.interpolation()
-            return jsonify(return_json)
-
-        if work_type == "condition_select":
-            json_return = geojson_helper.select_coordinate_geo(request_json)
-            # print(request_json)
-            return jsonify(json_return)
-
         if work_type == "data_select":
             select_type = request_json["select_type"]
             condition = request_json["select_condition"]
@@ -140,6 +117,22 @@ def index():
                 return_json = {"wrong"}
 
             return jsonify(return_json)
+
+        if work_type == "condition_select":
+            json_return = retrieval_helper.select_coordinate_geo(request_json)
+            # print(request_json)
+            return jsonify(json_return)
+
+        if work_type == "data_analysis":
+            analysis_type = request_json["analysis_type"]
+
+            if analysis_type == "heat_map":
+                json_return = analysis_helper.heat_map()
+                return jsonify(json_return)
+
+            if analysis_type == "predict_interpolation_map":
+                return_json = analysis_helper.interpolation()
+                return jsonify(return_json)
 
         if work_type == "house_predict":
             # 经度，纬度

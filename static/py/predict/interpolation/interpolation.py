@@ -39,9 +39,9 @@ file.close()
 # 117.342002,34.151637
 #  经度 ，纬度
 
-for longitude in range(117288, 117342, 4):
-    for latitude in range(34151, 34385, 4):
-        data_coordinate = coordinate_helper.gcj02_to_wgs84(float(longitude) / 1000, float(latitude) / 1000)
+for longitude in range(11705, 11734, 2):
+    for latitude in range(3415, 3438, 2):
+        data_coordinate = coordinate_helper.gcj02_to_wgs84(float(longitude) / 100, float(latitude) / 100)
 
         print(data_coordinate)
         print([longitude, latitude])
@@ -75,11 +75,11 @@ for longitude in range(117288, 117342, 4):
         dataset /= std
 
         # 模型加载
-        model = tf.keras.models.load_model("./static/py/predict/model_19_339")
+        model = tf.keras.models.load_model("../model_19_339")
         # 模型预测值计算
         predict_price = model.predict(dataset[:])
         print(predict_price)
 
-        file_data = open('../data/price_interpolation.txt', 'a', encoding='utf-8')
+        file_data = open('./price_interpolation.txt', 'a', encoding='utf-8')
         file_data.writelines(str(data_coordinate[0]) + ',' + str(data_coordinate[1]) + ',' + str(predict_price[0][0]) + '\n')
         file_data.close()

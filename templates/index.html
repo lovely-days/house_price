@@ -100,16 +100,16 @@
                             <div class="form-check" style="margin-left:1em;margin-top: 1em;margin-bottom: 1em;">
                                 <div>
                                     <input type="radio" class="form-check-input" name="optionsRadios" id="heat_map" onclick="heat_map()">
-                                    <label class="form-check-label" for="heat_map">热力图分析</label>
+                                    <label class="form-check-label" for="heat_map">热力分析</label>
                                 </div>
 
                                 <div>
                                     <input type="radio" class="form-check-input" name="optionsRadios" id="predict_interpolation_map" onclick="predict_interpolation_map()">
-                                    <label class="form-check-label" for="heat_map">预测插值</label>
+                                    <label class="form-check-label" for="heat_map">等值分析</label>
                                 </div>
 
-                                <div>
-                                    <input type="radio" class="form-check-input" name="optionsRadios" id="other_map" onclick="other_map()">
+                                <div  style="display: none;>
+                                    <input type="radio" class="form-check-input" name="optionsRadios" id="other_map" onclick="other_map()"">
                                     <label class="form-check-label" for="heat_map">其他分析</label>
                                 </div>
                                 
@@ -126,7 +126,7 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" id="data_predict_control_label" onclick="DataPredict()">房价评估预测</a>
+                        <a class="nav-link" href="#" id="data_predict_control_label" onclick="DataPredict()">单点房价预测</a>
                     </li>
                 </ul>
             </div>
@@ -282,16 +282,8 @@
             </div>
         </div>
 
-        <div id="condition_select_show" style="position: absolute; left: 500px; top: 500px;">
-            <div id="condition_select_card" class='card bg-light mb-3' style="margin-top:0.5em; display: none;">
-            <div class="form-check" style="margin-left:1em;margin-top: 1em;margin-bottom: 1em;">
-
-
-
-            </div>
-
-        </div>
-        </div>
+        <!--属性显示-->
+        
 
     </div>
 
