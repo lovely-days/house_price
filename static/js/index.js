@@ -18,7 +18,7 @@ var map = new ol.Map({
 map.addControl(new ol.control.FullScreen())
 map.addControl(new ol.control.ScaleLine())
 map.addControl(new ol.control.ZoomSlider())
-    
+
 // Remov Layers
 
 function RemoveAllLayer()
@@ -143,7 +143,8 @@ function OpenDataSelectCard()
     else
     {
         $("#data_select_control_label").attr("class","nav-link")
-        $("#data_select_control_card").css("display","none")
+        $("#data_select_control_card").css("display", "none")
+        document.location.reload()
         
     }
 }
@@ -341,7 +342,6 @@ function DataSelectRequest()
                     })
                 });
 
-                $("#data_select_control_label").attr("class", "nav-link")
                 map.addLayer(DataSelect);
 
                 Select_Feature()
@@ -363,6 +363,8 @@ function DataSelectModalClose()
 {
     $("#data_select_control_label").attr("class", "nav-link")
     $("#data_select_control_card").css("display", "none")
+
+    document.location.reload()
 }
 
 // Condition Select
@@ -387,6 +389,7 @@ function OpenConditionSelectCard() {
     {
         $("#condition_select_control_label").attr("class", "nav-link")
         $("#condition_select_control_card").css("display", "none")
+        document.location.reload()
 
     }
 }
@@ -436,7 +439,6 @@ function ConditionSelectRequest() {
                 })
             });
 
-            $("#condition_select_control_label").attr("class", "nav-link")
             $("#condition_select_control_card").css("display", "none")
             map.addLayer(ConditionSelect);
 
@@ -453,6 +455,8 @@ function ConditionSelectRequest() {
 function ConditionSelectModalClose(){
     $("#condition_select_control_label").attr("class", "nav-link")
     $("#condition_select_control_card").css("display", "none")
+
+    document.location.reload()
 }
 
 // Data Analysis
@@ -521,7 +525,8 @@ function heat_map()
     }
     else
     {
-        map.removeLayer(vector)
+        // 清空原图层
+        RemoveAllLayer()
     }
 
 }
@@ -668,7 +673,8 @@ function DataPredict()
     }
     else
     {
-        $("#data_predict_control_label").attr("class","nav-link")
+        $("#data_predict_control_label").attr("class", "nav-link")
+        document.location.reload()
     }
 }
 
