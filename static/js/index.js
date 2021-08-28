@@ -46,7 +46,8 @@ function OpenDataShowCard()
     else
     {
         $("#data_show_control_label").attr("class","nav-link")
-        $("#data_show_control_card").css("display","none")
+        $("#data_show_control_card").css("display", "none")
+        document.location.reload()
         
     }
 }
@@ -58,43 +59,36 @@ function DataShow()
     if($("#house_check").prop("checked"))
     {
         map.addLayer(House)
-        alert(1)
     }
 
     if($("#hospital_check").prop("checked"))
     { 
         map.addLayer(Hospital)
-        alert(2)
     }
 
     if($("#school_check").prop("checked"))
     {
         map.addLayer(School)
-        alert(3)
     }
 
     if($("#environment_check").prop("checked"))
     {
         map.addLayer(Environment)
-        alert(4)
     }
 
     if($("#subway_check").prop("checked"))
     {
         map.addLayer(Subway)
-        alert(5)
     }
 
     if($("#bus_station_check").prop("checked"))
     {
         map.addLayer(Bus_station)
-        alert(6)
     }
 
     if($("#shopping_check").prop("checked"))
     {
         map.addLayer(Shopping)
-        alert(7)
     }
 
 }

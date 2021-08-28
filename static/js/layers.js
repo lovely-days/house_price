@@ -6,7 +6,7 @@ var  House = new ol.layer.Image({
                         params:{'LAYERS':'class:House'},
                         serverType: 'geoserver',
                         visible: false
-                    })
+                    })                    
                 });
 
 /////////////// Geoserver中发布的 Hospital 信息 ///////////////
@@ -43,7 +43,7 @@ var Environment = new ol.layer.Image({
 var Subway = new ol.layer.Image({
                     source:new ol.source.ImageWMS({
                         url:'http://localhost:8080/geoserver/GIS/wms',
-                        params:{'LAYERS':'class:Subway'},
+                        params:{'LAYERS':'class:Sub'},
                         serverType: 'geoserver',
                         visible: false                        
                     })
@@ -53,7 +53,7 @@ var Subway = new ol.layer.Image({
 var Bus_station = new ol.layer.Image({
                     source:new ol.source.ImageWMS({
                         url:'http://localhost:8080/geoserver/GIS/wms',
-                        params:{'LAYERS':'Bus_station'},
+                        params:{'LAYERS':'class:BusStops'},
                         serverType: 'geoserver',
                         visible: false
                     })

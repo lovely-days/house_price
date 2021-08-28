@@ -108,15 +108,15 @@ def index():
             condition = request_json["select_condition"]
 
             if select_type == 'Rectangle':
-                return_json = graphic_helper.rectangle(condition)
+                json_return = graphic_helper.rectangle(condition)
             elif select_type == 'Circle':
-                return_json = graphic_helper.circle(condition)
+                json_return = graphic_helper.circle(condition)
             elif select_type == 'Polygon':
-                return_json = graphic_helper.polygon(condition)
+                json_return = graphic_helper.polygon(condition)
             else:
-                return_json = {"wrong"}
+                json_return = {"wrong"}
 
-            return jsonify(return_json)
+            return jsonify(json_return)
 
         if work_type == "condition_select":
             json_return = retrieval_helper.select_coordinate_geo(request_json)
@@ -131,8 +131,8 @@ def index():
                 return jsonify(json_return)
 
             if analysis_type == "predict_interpolation_map":
-                return_json = analysis_helper.interpolation()
-                return jsonify(return_json)
+                json_return = analysis_helper.interpolation()
+                return jsonify(json_return)
 
         if work_type == "house_predict":
             # 经度，纬度
