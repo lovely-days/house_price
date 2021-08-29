@@ -69,7 +69,7 @@ def login():
 
             if status == "success validate":
                 # enroll
-                sql = "insert into webgis_design.users (UserName,Password,Permission) " \
+                sql = "insert into users (UserName,Password,Permission) " \
                       "values ('{0}','{1}','{2}')".format(name, password, 0)
 
                 print(sql)

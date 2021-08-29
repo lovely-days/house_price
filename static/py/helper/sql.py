@@ -7,7 +7,7 @@ import pymysql
 # output: 运行成功则返回影响行数, 否则返回异常
 
 def update_database(sql_str=''):
-    conn = pymysql.connect(host='localhost', user='root', password='ZyW106509', database='webgis_design')
+    conn = pymysql.connect(host='localhost', user='sys_user', password='user_password', database='house_price')
     cursor = conn.cursor()
 
     try:
@@ -28,7 +28,7 @@ def update_database(sql_str=''):
 # output: 返回查询得到单一数据
 
 def select_one(sql_str=''):
-    conn = pymysql.connect(host='localhost', user='root', password='ZyW106509', database='webgis_design')
+    conn = pymysql.connect(host='localhost', user='sys_user', password='user_password', database='house_price')
     cursor = conn.cursor()
 
     cursor.execute(sql_str)
@@ -43,7 +43,7 @@ def select_one(sql_str=''):
 # output: 返回查得所有数据
 
 def select_all(sql_str):
-    conn = pymysql.connect(host='localhost', user='root', password='ZyW106509', database='webgis_design')
+    conn = pymysql.connect(host='localhost', user='sys_user', password='user_password', database='house_price')
     cursor = conn.cursor()
 
     cursor.execute(sql_str)
